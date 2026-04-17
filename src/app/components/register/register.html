@@ -1,0 +1,90 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="card-header">
+      <h2>הצטרפות ל-Footryp</h2>
+      <p>הצעד הראשון למציאת חבילת הכדורגל המושלמת</p>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        
+        <h3 class="section-title">פרטים בסיסיים</h3>
+        
+        <div class="form-group full-width">
+          <label>שם משתמש</label>
+          <input type="text" formControlName="username" placeholder="הכנס שם משתמש"
+                 [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+        </div>
+
+        <div class="form-group full-width">
+          <label>כתובת אימייל</label>
+          <input type="email" formControlName="email" placeholder="email@example.com"
+                 [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>סיסמה</label>
+            <input type="password" formControlName="password" placeholder="********"
+                   [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          </div>
+          <div class="form-group">
+            <label>אימות סיסמה</label>
+            <input type="password" formControlName="confirmPassword" placeholder="********"
+                   [class.error]="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched">
+          </div>
+        </div>
+
+        <h3 class="section-title">העדפות נסיעה ו-AI</h3>
+        
+        <div class="form-row">
+          <div class="form-group flex-grow">
+            <label>קבוצה אהובה</label>
+            <select formControlName="favoriteTeamId">
+              <option [value]="null" disabled>בחר קבוצה מהרשימה...</option>
+              <option *ngFor="let team of teams" [value]="team.id">{{ team.name }}</option>
+            </select>
+          </div>
+          <div class="form-group width-small">
+            <label>גיל</label>
+            <input type="number" formControlName="age"
+                   [class.error]="registerForm.get('age')?.invalid && registerForm.get('age')?.touched">
+          </div>
+        </div>
+
+        <div class="form-group full-width slider-group">
+          <label>
+            <span>רמת תקציב (1-5)</span>
+            <span class="badge">{{ registerForm.get('budgetLevel')?.value }}</span>
+          </label>
+          <input type="range" min="1" max="5" formControlName="budgetLevel">
+          <div class="slider-labels">
+            <span>חיסכון</span>
+            <span>יוקרה</span>
+          </div>
+        </div>
+
+        <div class="form-group full-width slider-group">
+          <label>
+            <span>מדד הרפתקנות</span>
+            <span class="badge">{{ registerForm.get('riskTolerance')?.value }}</span>
+          </label>
+          <input type="range" min="1" max="5" formControlName="riskTolerance">
+          <div class="slider-labels">
+            <span>בטוח</span>
+            <span>הרפתקני</span>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" [disabled]="registerForm.invalid" class="btn-primary">צור חשבון</button>
+          <button type="button" (click)="goBackToLogin()" class="btn-secondary">ביטול</button>
+        </div>
+
+        <div class="footer-link">
+          כבר יש לך חשבון? <a (click)="goBackToLogin()">התחבר כאן</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

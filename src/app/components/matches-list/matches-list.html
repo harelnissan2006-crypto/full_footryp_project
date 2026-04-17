@@ -1,0 +1,11 @@
+<div *ngIf="isLoading">טוען משחקים מותאמים אישית...</div>
+
+<div *ngIf="!isLoading">
+  <div *ngFor="let match of suggestedMatches">
+    <app-game-card [matchTrip]="match"></app-game-card>
+  </div>
+</div>
+
+<div *ngIf="!isLoading && suggestedMatches.length === 0">
+  לא נמצאו משחקים שמתאימים להעדפות שלך כרגע.
+</div>

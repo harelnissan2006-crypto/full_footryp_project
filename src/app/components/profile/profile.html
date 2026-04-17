@@ -1,0 +1,68 @@
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0 rounded-3">
+        
+        <div class="card-header bg-dark text-white text-center py-4">
+          <h2 class="mb-0">הפרופיל שלי</h2>
+          <p class="small mb-0 mt-2">נהל את העדפות הנסיעה שלך</p>
+        </div>
+
+        <div class="card-body p-4">
+          <form [formGroup]="profileForm">
+            
+            <div class="mb-3">
+              <label class="form-label text-muted">שם משתמש</label>
+              <input formControlName="username" class="form-control bg-light">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-muted">אימייל</label>
+              <input formControlName="email" class="form-control bg-light">
+            </div>
+
+            <hr class="my-4">
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">קבוצה אהובה</label>
+              <select formControlName="favoriteTeamId" class="form-select">
+                <option *ngFor="let team of teams" [ngValue]="team.id">{{ team.name }}</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label d-flex justify-content-between">
+                <span>רמת תקציב (1-5)</span>
+                <span class="badge bg-primary">{{ profileForm.get('budgetLevel')?.value }}</span>
+              </label>
+              <input type="range" class="form-range" min="1" max="5" formControlName="budgetLevel">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label d-flex justify-content-between">
+                <span>רמת סיכון (1-5)</span>
+                <span class="badge bg-primary">{{ profileForm.get('riskTolerance')?.value }}</span>
+              </label>
+              <input type="range" class="form-range" min="1" max="5" formControlName="riskTolerance">
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+              <button type="button" *ngIf="!isEditable" (click)="toggleEdit()" class="btn btn-warning flex-grow-1 rounded-pill">
+                ✏️ עריכת העדפות
+              </button>
+              
+              <button type="button" *ngIf="isEditable" (click)="saveChanges()" class="btn btn-success flex-grow-1 rounded-pill shadow">
+                💾 שמור שינויים
+              </button>
+              
+              <button type="button" *ngIf="isEditable" (click)="toggleEdit()" class="btn btn-outline-secondary rounded-pill">
+                ביטול
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
