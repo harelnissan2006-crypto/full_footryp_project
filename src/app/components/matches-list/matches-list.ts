@@ -1,45 +1,41 @@
 import { Component, OnInit } from '@angular/core';
+import { MatchesService } from '../../services/matches.service';
+import { MatchTrip } from '../../models/match-trip.model';
 import { CommonModule } from '@angular/common';
 import { GameCard } from '../game-card/game-card';
-import { MatchTrip } from '../../models/match-trip.model';
-import { MatchesService } from '../../services/matches.service';
 
 @Component({
   selector: 'app-matches-list',
   standalone: true,
   imports: [CommonModule, GameCard],
   templateUrl: './matches-list.html',
-  styleUrl: './matches-list.css',
+  styleUrl: './matches-list.css'
 })
 export class MatchesList implements OnInit {
-  suggestedMatches: MatchTrip[] = [];
+  matches: MatchTrip[] = [];
   isLoading: boolean = true;
+  userId = localStorage.getItem('userId');
 
-  constructor(private matchService: MatchesService) {}
+  constructor(private matchesService: MatchesService) {}
 
   ngOnInit(): void {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      this.matchService.getSuggestions(userId).subscribe({
-        next: (matches: any[]) => {
-          this.suggestedMatches = matches.map(match => {
-            return{
-              id: match._id,
-              homeTeam: match.homeTeam,
-              awayTeam: match.awayTeam,
-              matchDate: match.match_date
-            } as MatchTrip
-            });
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('Error fetching match suggestions:', err);
-          this.isLoading = false;
-        }
-      });
+    if (this.userId) {
+      this.loadMatches();
     }
-    else{
-      this.isLoading = false;
-    }
+  }
+
+  loadMatches(): void {
+    this.isLoading = true;
+    this.matchesService.getSuggestions(this.userId!).subscribe({
+      next: (data) => {
+        this.matches = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת משחקים:', err);
+        this.isLoading = false;
+        this.matches = [];
+      }
+    });
   }
 }

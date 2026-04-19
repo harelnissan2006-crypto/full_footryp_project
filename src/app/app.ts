@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -9,14 +11,34 @@ import { CommonModule } from '@angular/common';
   styleUrl: './app.css'
 })
 export class App {
-  constructor(private router: Router) {}
+  showNavbar = false;
+
+  constructor(private router: Router) {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.updateNavbarVisibility();
+    });
+  }
+
   protected readonly title = signal('Footryp_Main');
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('userId');
+  updateNavbarVisibility() {
+    const currentRoute = this.router.url;
+    const isAuthPage = currentRoute.includes('login') || currentRoute.includes('register') || currentRoute === '/';
+    const hasUserId = !!localStorage.getItem('userId');
+
+    this.showNavbar = hasUserId && !isAuthPage;
   }
-  logout(){
+
+
+  get canShowNavbar(): boolean {
+    return this.showNavbar;
+  }
+
+  logout() {
     localStorage.removeItem('userId');
+    this.showNavbar = false;
     this.router.navigate(['/login']);
   }
 }

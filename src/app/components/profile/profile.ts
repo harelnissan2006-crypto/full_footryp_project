@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import mappingData from '../../../../server/scripts/mapping.json'; 
 
 @Component({
   selector: 'app-profile',
@@ -16,13 +17,11 @@ export class Profile implements OnInit {
   profileForm!: FormGroup;
   isEditable: boolean = false;
   userId = localStorage.getItem('userId');
-
-    teams = [
-      { id: 1, name: 'Real Madrid' }, 
-      { id: 2, name: 'Barcelona' }, 
-      { id: 3, name: 'Manchester City' }, 
-      { id: 4, name: 'Bayern Munich' },
-      { id: 5, name: 'Liverpool' }];
+  
+  teams = Object.entries(mappingData).map(([name, info]) => ({
+    id: info.team_id,
+    name: name
+  })).sort((a, b) => a.name.localeCompare(b.name));
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,10 +31,10 @@ export class Profile implements OnInit {
     this.initForm();
   }
 
-  initForm(){
+  initForm() {
     this.profileForm = this.formBuilder.group({
-      username: [{value: '', disabled: true}],
-      email: [{value: '', disabled: true}],
+      username: [{ value: '', disabled: true }],
+      email: [{ value: '', disabled: true }],
       favoriteTeamId: [null],
       budgetLevel: [3],
       riskTolerance: [3],
@@ -45,26 +44,30 @@ export class Profile implements OnInit {
   }
 
   ngOnInit(): void {
-    if(!this.userId){
+    if (!this.userId) {
       this.router.navigate(['/login']);
       return;
     }
+    this.loadUserData();
   }
 
-  loadUserData(){
-    this.authService.getUser(this.userId!).subscribe(userData => {
-      this.profileForm.patchValue(userData);
+  loadUserData() {
+    this.authService.getUser(this.userId!).subscribe({
+      next: (userData) => {
+        this.profileForm.patchValue(userData);
+      },
+      error: (err) => console.error('Error fetching user data:', err)
     });
   }
 
-  toggleEdit(){
+  toggleEdit() {
     this.isEditable = !this.isEditable;
     if (this.isEditable) {
       this.profileForm.get('favoriteTeamId')?.enable();
       this.profileForm.get('budgetLevel')?.enable();
       this.profileForm.get('riskTolerance')?.enable();
       this.profileForm.get('age')?.enable();
-    }else {
+    } else {
       this.profileForm.disable();
       this.loadUserData();
     }

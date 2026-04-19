@@ -1,0 +1,24 @@
+<div class="chat-container">
+  <div class="chat-header">
+    <h5>צ'אט אוהדים - משחק {{ matchId }}</h5>
+  </div>
+
+  <div class="messages-list" #scrollContainer>
+    <div *ngFor="let msg of messages" 
+         [ngClass]="{'my-message': msg.sender_name === userName, 'other-message': msg.sender_name !== userName}">
+      <div class="message-bubble">
+        <small class="sender-name">{{ msg.sender_name }}</small>
+        <p class="message-content">{{ msg.content }}</p>
+        <small class="timestamp">{{ msg.timestamp | date:'HH:mm' }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input">
+    <input type="text" 
+           [(ngModel)]="newMessage" 
+           (keyup.enter)="sendMessage()" 
+           placeholder="כתוב הודעה לאוהדים..." />
+    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">שלח</button>
+  </div>
+</div>

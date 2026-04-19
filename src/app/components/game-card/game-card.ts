@@ -1,11 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, CommonModule } from '@angular/common';
 import { MatchTrip } from '../../models/match-trip.model';
-import { NgClass } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-game-card',
-  imports: [DatePipe, NgClass],
+  standalone: true,
+  imports: [DatePipe, CommonModule, RouterModule],
   templateUrl: './game-card.html',
   styleUrls: ['./game-card.css'],
 })
@@ -15,16 +16,20 @@ export class GameCard implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    if (!this.matchTrip) {
+      console.error('GameCard: matchTrip is undefined');
+    }
   }
 
   getFlightInfo(): string {
-    if (this.matchTrip.flightInfo.direct) {
-      return 'Direct Flight';
-    }
-    if (this.matchTrip.flightInfo.connecting) {
-      return 'Connecting Flight';
-    }
-    return 'No Flight Information Available'; 
+  if (!this.matchTrip) return 'Loading...';
+  
+  const flight = this.matchTrip.match?.flight_availability;
+  
+  if (flight?.direct) return 'Direct Flight';
+  if (flight?.connecting) return 'Connecting Flight';
+  if (flight?.status === 'too_soon') return 'Too early for flight prices';
+  
+  return 'No Flight Information';
   }
-
 }

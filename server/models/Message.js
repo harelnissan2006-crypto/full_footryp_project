@@ -1,0 +1,12 @@
+const { reflectComponentType } = require('@angular/core');
+const mongoose = require('mongoose');
+
+const messageSchema = new mongoose.Schema({
+    matchId: { type: String, required: true },
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    senderName: { type: String, required: true },
+    content: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
+});
+
+module.exports = mongoose.model('Message', messageSchema);

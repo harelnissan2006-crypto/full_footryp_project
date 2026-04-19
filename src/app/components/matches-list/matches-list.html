@@ -1,11 +1,17 @@
-<div *ngIf="isLoading">טוען משחקים מותאמים אישית...</div>
+<div class="matches-container">
+  <h2>משחקים מומלצים עבורך</h2>
 
-<div *ngIf="!isLoading">
-  <div *ngFor="let match of suggestedMatches">
-    <app-game-card [matchTrip]="match"></app-game-card>
+  <div *ngIf="isLoading" class="loader">מחפש עבורך את הדילים הכי טובים...</div>
+
+  <div class="matches-grid" *ngIf="!isLoading && matches.length > 0">
+    <app-game-card
+      *ngFor="let match of matches"
+      [matchTrip]="match">
+    </app-game-card>
   </div>
-</div>
 
-<div *ngIf="!isLoading && suggestedMatches.length === 0">
-  לא נמצאו משחקים שמתאימים להעדפות שלך כרגע.
+  <div *ngIf="!isLoading && matches.length === 0" class="no-matches">
+    <p>לא נמצאו משחקים שמתאימים להעדפות שלך כרגע.</p>
+    <button (click)="loadMatches()">נסה לעדכן שוב</button>
+  </div>
 </div>

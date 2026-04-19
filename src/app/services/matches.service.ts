@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { MatchTrip } from "../models/match-trip.model";
 
 @Injectable({
   providedIn: "root",
@@ -14,7 +15,7 @@ export class MatchesService {
         return this.http.post(`${this.apiUrl}/generate/${userId}`, {});
     }
 
-    getSuggestions(userId: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiUrl}/suggestions/${userId}`);
+    getSuggestions(userId: string): Observable<MatchTrip[]> {
+        return this.http.get<MatchTrip[]>(`${this.apiUrl}/suggestions/${userId}`);
     }
 }
