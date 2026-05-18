@@ -1,37 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const SuggestedMatch = require('../models/SuggestedMatch');
+const matchController = require('../controllers/matchController');
 
-router.get('/suggestions/:userId', async (req, res) => {
-    try {
-        const userIdStr = req.params.userId;
-        console.log("--- Debug Match Search ---");
-        console.log("Searching for User ID String:", userIdStr);
+/**
+ * GET /api/matches/suggestions/:userId
+ * שולף את רשימת המשחקים העתידיים מה-DB להצגה ב-Frontend
+ */
+router.get('/suggestions/:userId', matchController.getSuggestions);
 
-        let suggestions = await SuggestedMatch.find({ user_id: userIdStr });
-        
-        if (!suggestions || suggestions.length === 0) {
-            console.log("Not found as String, trying as ObjectId...");
-            const objectId = new mongoose.Types.ObjectId(userIdStr);
-            suggestions = await SuggestedMatch.find({ user_id: objectId });
-        }
-
-        console.log("Results count:", suggestions ? suggestions.length : 0);
-        console.log("--------------------------");
-
-        if (!suggestions || suggestions.length === 0) {
-            return res.status(404).json({ 
-                message: 'No suggestions found',
-                debug_info: { searched_id: userIdStr }
-            });
-        }
-        
-        res.status(200).json(suggestions);
-    } catch (error) {
-        console.error("Critical Server Error:", error);
-        res.status(500).json({ message: error.message });
-    }
-});
+/**
+ * POST /api/matches/trigger/:userId
+ * מריץ את מנוע הפייתון כדי לרענן את הנתונים (מחיקת ישנים וכתיבת חדשים)
+ */
+router.post('/trigger/:userId', matchController.triggerEngine);
 
 module.exports = router;

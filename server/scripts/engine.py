@@ -9,6 +9,9 @@ from pymongo import MongoClient
 import os
 from bson.objectid import ObjectId
 
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
+
 amadeus = Client(
     client_id='MtlgyNLQ5nhoy5RuOkqmeoyYWeHwhd83',
     client_secret='GvbOjgVE2vsA0sru'
@@ -31,7 +34,15 @@ def load_mapping():
     base_path = os.path.dirname(__file__)
     mapping_path = os.path.join(base_path, 'mapping.json')
     with open(mapping_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        raw = json.load(f)
+    
+    # ✅ שטח את המיפוי — מאחד את כל הקבוצות מכל הליגות למילון אחד
+    flat = {}
+    for league, teams in raw.items():
+        for team_name, team_info in teams.items():
+            flat[team_name] = team_info
+    
+    return flat
     
 TEAM_MAPPING = load_mapping()
 
@@ -140,6 +151,8 @@ def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
             team_id = info['team_id']
             break
 
+    print(f"DEBUG get_match_data_hybrid: input={team_input}, found team_id={team_id}, official_name={official_name}")    
+
     if not team_id:
         return None
 
@@ -154,49 +167,71 @@ def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
         if not matches:
             return None
 
-        next_match = matches[0]
-        home_team_name = next_match['homeTeam']['name']
-        match_date_str = next_match['utcDate'].split('T')[0]
-        match_date = datetime.strptime(match_date_str, "%Y-%m-%d")
-        
-        flight_date = match_date - timedelta(days=days_before)
-        flight_date_str = flight_date.strftime("%Y-%m-%d")
+        # ✅ עד 3 משחקים
+        matches_to_process = matches[:3]
+        results = []
 
-        dest_info = next(
-            (info for n, info in TEAM_MAPPING.items() 
-             if normalize(info.get('api_name', n)) == normalize(home_team_name)), 
-            None
-        )
+        for next_match in matches_to_process:
+            home_team_info = next_match.get('homeTeam')
+            if not home_team_info:
+                continue
+                
+            home_team_id = home_team_info.get('id')
+            home_team_name = home_team_info.get('name')
+            
+            match_date_str = next_match['utcDate'].split('T')[0]
+            match_date = datetime.strptime(match_date_str, "%Y-%m-%d")
+            
+            flight_date = match_date - timedelta(days=days_before)
+            flight_date_str = flight_date.strftime("%Y-%m-%d")
 
-        if not dest_info:
-            return None
+            dest_info = None
+            for name, info in TEAM_MAPPING.items():
+                if info.get('team_id') == home_team_id:
+                    dest_info = info
+                    break
+            
+            if not dest_info:
+                dest_info = next(
+                    (info for n, info in TEAM_MAPPING.items() 
+                     if normalize(info.get('api_name', n)) == normalize(home_team_name)), 
+                    None
+                )
 
-        home_city = dest_info['city']
-        home_iata = dest_info['iata']
-        distance = dest_info.get('distance_from_tlv', 3000)
+            # ✅ אם הבית לא במיפוי — דלג על המשחק הזה, אל תעצור
+            if not dest_info:
+                print(f"DEBUG: Skipping match — home team '{home_team_name}' not in mapping")
+                continue
 
-        if user_origin_iata == home_iata:
-            flight_result = {"direct": True, "status": "local", "price": 0}
-        else:
-            flight_result = check_flight_availability(user_origin_iata, home_iata, flight_date_str, distance)
+            home_city = dest_info['city']
+            home_iata = dest_info['iata']
+            distance = dest_info.get('distance_from_tlv', 3000)
 
-        risk_label = "High" if days_before == 0 else "Medium" if days_before == 1 else "Low"
+            if user_origin_iata == home_iata:
+                flight_result = {"direct": True, "status": "local", "price": 0}
+            else:
+                flight_result = check_flight_availability(user_origin_iata, home_iata, flight_date_str, distance)
 
-        return {
-            "home_team": home_team_name,
-            "away_team": next_match['awayTeam']['name'],
-            "match_date": match_date_str,
-            "match_time": next_match['utcDate'].split('T')[1].replace('Z', ''),
-            "flight_date": flight_date_str,
-            "flight_availability": flight_result,
-            "risk_level": risk_label,
-            "home_city": home_city,
-            "home_iata": home_iata
-        }
+            risk_label = "High" if days_before == 0 else "Medium" if days_before == 1 else "Low"
+
+            results.append({
+                "home_team": home_team_name,
+                "away_team": next_match['awayTeam']['name'],
+                "match_date": match_date_str,
+                "match_time": next_match['utcDate'].split('T')[1].replace('Z', ''),
+                "flight_date": flight_date_str,
+                "flight_availability": flight_result,
+                "risk_level": risk_label,
+                "home_city": home_city,
+                "home_iata": home_iata
+            })
+
+        return results if results else None
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error in match data: {e}")
         return None
+    
 
 def run_engine_for_user(user_id_input):
     user = None
@@ -206,31 +241,57 @@ def run_engine_for_user(user_id_input):
         user = db.users.find_one({"_id": user_id_input})
 
     if not user:
+        print(f"DEBUG: User {user_id_input} not found in DB")
         return
     
-    raw_teams = user.get("favoriteTeamId") or user.get("favoriteTeam") or user.get("favorite_teams")
-    if raw_teams is None:
-        return
+    print(f"DEBUG: Found user {user.get('username')}. Deleting old matches...")
+    db.suggested_matches.delete_many({"user_id": user_id_input})
     
-    favorite_teams = raw_teams if isinstance(raw_teams, list) else [raw_teams]
+    main_favorite = user.get("favoriteTeamId")
+    other_interests = user.get("otherInterestTeamsIds", [])
+    
+    all_teams_to_check = []
+    if main_favorite:
+        all_teams_to_check.append(main_favorite)
+    if isinstance(other_interests, list):
+        all_teams_to_check.extend(other_interests)
+        
+    all_teams_to_check = list(set(all_teams_to_check))
+    print(f"DEBUG: Teams to process: {all_teams_to_check}") # האם דורטמונד כאן?
+
     origin = user.get("origin_iata") or user.get("origin") or "TLV"
 
-    for team in favorite_teams:
-        match_data = get_match_data_hybrid(team, origin)
+    print(f"DEBUG: Deleting old matches for user {user_id_input}")
+    db.suggested_matches.delete_many({"user_id": user_id_input})
+
+    for team in all_teams_to_check:
+        print(f"DEBUG: Fetching matches for team ID: {team}...")
+        matches_list = get_match_data_hybrid(team, origin)
+    
+        # ✅ הוסף את זה
+        print(f"DEBUG: matches_list result = {matches_list}")
         
-        if match_data:
-            flight_info = match_data.get('flight_availability') 
-            db.suggested_matches.update_one(
-                {"user_id": user_id_input, "team": str(team)},
-                {"$set": {
-                    "match": match_data,
-                    "flight_availability": flight_info, 
-                    "updated_at": datetime.utcnow(),
-                    "status": "active"
-                }},
-                upsert=True
-            )
-        time.sleep(2)
+        if matches_list:
+            for match_data in matches_list:
+                print(f"DEBUG: Saving match: {match_data['home_team']} vs {match_data['away_team']}")
+                
+                # שמירה ב-DB - שימוש ב-update_one עם תאריך המשחק כדי למנוע כפילויות
+                db.suggested_matches.update_one(
+                    {
+                        "user_id": user_id_input, 
+                        "team": str(team), 
+                        "match.match_date": match_data['match_date']
+                    },
+                    {"$set": {
+                        "match": match_data,
+                        "flight_availability": match_data['flight_availability'],
+                        "updated_at": datetime.utcnow(),
+                        "status": "active"
+                    }},
+                    upsert=True
+                )
+        
+        time.sleep(1.2)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

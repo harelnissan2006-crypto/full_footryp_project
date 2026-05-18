@@ -27,6 +27,7 @@ export class Login {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response: any) => {
           localStorage.setItem('userId', response.userId);
+          localStorage.setItem('username', response.username);
           this.router.navigate(['/matches']);
         },
         error: (error) => {

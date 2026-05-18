@@ -24,4 +24,7 @@ export class AuthService {
     getTeams(): Observable<any> {
         return this.http.get<any>('http://localhost:3000/api/teams');
     }
+    getSuggestions(userId: string): Observable<any> {
+        return this.http.get<any[]>(`http://localhost:3000/api/users-data/suggestions/${userId}`);
+    }
 }

@@ -1,24 +1,52 @@
 <div class="chat-container">
-  <div class="chat-header">
-    <h5>צ'אט אוהדים - משחק {{ matchId }}</h5>
-  </div>
-
-  <div class="messages-list" #scrollContainer>
-    <div *ngFor="let msg of messages" 
-         [ngClass]="{'my-message': msg.sender_name === userName, 'other-message': msg.sender_name !== userName}">
-      <div class="message-bubble">
-        <small class="sender-name">{{ msg.sender_name }}</small>
-        <p class="message-content">{{ msg.content }}</p>
-        <small class="timestamp">{{ msg.timestamp | date:'HH:mm' }}</small>
-      </div>
+    <div class="chat-header">
+        <div class="header-actions">
+            <button class="btn-back" (click)="goBack()">◀</button>   <!-- ✅ -->
+            <div class="header-info">
+                <h5>Fan Chat - {{ matchId }}</h5>
+                <small>{{ onlineUsers.length }} online</small>
+            </div>
+            <button class="btn-leave" (click)="leaveChat()">Leave</button>  <!-- ✅ -->
+        </div>
     </div>
-  </div>
 
-  <div class="chat-input">
-    <input type="text" 
-           [(ngModel)]="newMessage" 
-           (keyup.enter)="sendMessage()" 
-           placeholder="כתוב הודעה לאוהדים..." />
-    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">שלח</button>
-  </div>
+    <!-- משתמשים מחוברים כרגע -->
+    <div class="users-section">
+        <div class="users-panel online-panel">
+            <p class="panel-title">🟢 Online now ({{ onlineUsers.length }})</p>
+            <div class="users-list">
+                <span *ngFor="let user of onlineUsers" class="user-badge online">{{ user }}</span>
+                <span *ngIf="onlineUsers.length === 0" class="empty-label">אף אחד</span>
+            </div>
+        </div>
+
+        <!-- כל המשתמשים שהיו בצ'אט -->  <!-- ✅ -->
+        <div class="users-panel all-panel">
+            <p class="panel-title">👥 All members ({{ allUsers.length }})</p>
+            <div class="users-list">
+                <span *ngFor="let user of allUsers" class="user-badge"
+                      [class.online]="onlineUsers.includes(user)">{{ user }}</span>
+                <span *ngIf="allUsers.length === 0" class="empty-label">אף אחד עדיין</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="messages-list">
+        <div *ngFor="let msg of messages"
+             [ngClass]="{'my-message': msg.senderName === userName, 'other-message': msg.senderName !== userName}">
+            <div class="message-bubble">
+                <small class="sender-name">{{ msg.senderName }}</small>
+                <p class="message-content">{{ msg.content }}</p>
+                <small class="timestamp">{{ msg.timestamp | date:'HH:mm' }}</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-input">
+        <input type="text"
+               [(ngModel)]="newMessage"
+               (keyup.enter)="sendMessage()"
+               placeholder="Write a message..." />
+        <button (click)="sendMessage()" [disabled]="!newMessage.trim()">➤</button>
+    </div>
 </div>

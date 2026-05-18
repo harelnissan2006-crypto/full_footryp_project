@@ -1,38 +1,87 @@
 <div class="container mt-5 mb-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-      <div class="card shadow-lg border-0 rounded-3">
+      <div class="card shadow-lg border-0 rounded-3 text-start" dir="ltr">
         
         <div class="card-header bg-dark text-white text-center py-4">
-          <h2 class="mb-0">הפרופיל שלי</h2>
-          <p class="small mb-0 mt-2">נהל את העדפות הנסיעה שלך</p>
+          <h2 class="mb-0">My Profile</h2>
+          <p class="small mb-0 mt-2">Manage your travel and team preferences</p>
         </div>
 
         <div class="card-body p-4">
           <form [formGroup]="profileForm">
             
             <div class="mb-3">
-              <label class="form-label text-muted">שם משתמש</label>
-              <input formControlName="username" class="form-control bg-light">
+              <label class="form-label text-muted">Username</label>
+              <input formControlName="username" class="form-control bg-light border-0">
             </div>
 
             <div class="mb-3">
-              <label class="form-label text-muted">אימייל</label>
-              <input formControlName="email" class="form-control bg-light">
+              <label class="form-label text-muted">Email</label>
+              <input formControlName="email" class="form-control bg-light border-0">
             </div>
 
             <hr class="my-4">
 
-            <div class="mb-3">
-              <label class="form-label fw-bold">קבוצה אהובה</label>
-              <select formControlName="favoriteTeamId" class="form-select">
-                <option *ngFor="let team of teams" [ngValue]="team.id">{{ team.name }}</option>
+            <div class="mb-4">
+              <label class="form-label fw-bold">Primary Favorite Team</label>
+              
+              <div *ngIf="isEditable" class="mb-2">
+                <select class="form-select form-select-sm border-primary" (change)="onLeagueChange($event)">
+                  <option value="">-- First, Select League --</option>
+                  <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
+                </select>
+              </div>
+
+              <select formControlName="favoriteTeamId" class="form-select border-2" [class.border-warning]="isEditable">
+                <option [ngValue]="null">Select Team</option>
+                <ng-container *ngIf="isEditable">
+                  <option *ngFor="let team of filteredTeams" [ngValue]="team.id">{{ team.name }}</option>
+                </ng-container>
+                <ng-container *ngIf="!isEditable">
+                   <option [ngValue]="profileForm.get('favoriteTeamId')?.value">
+                     {{ getTeamNameById(profileForm.get('favoriteTeamId')?.value) }}
+                   </option>
+                </ng-container>
               </select>
+              <div class="form-text">This team will be used for your main flight recommendations.</div>
             </div>
 
             <div class="mb-4">
+              <label class="form-label fw-bold">Additional Interest Teams</label>
+              
+              <div *ngIf="isEditable" class="mb-3 p-3 border rounded bg-light">
+                <p class="small text-muted mb-2">Add teams by league:</p>
+                <div class="d-flex gap-2">
+                  <select class="form-select border-primary" (change)="onLeagueChange($event)">
+                    <option value="">Select League</option>
+                    <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
+                  </select>
+                  
+                  <select class="form-select border-primary" (change)="addInterestTeam($event)" [disabled]="!selectedLeague">
+                    <option value="">Add Team...</option>
+                    <option *ngFor="let team of filteredTeams" [value]="team.id">{{ team.name }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 p-2 bg-white rounded-3 border min-vh-10">
+                <span *ngIf="getInterestTeamIds().length === 0" class="text-muted small p-2">No interest teams selected yet.</span>
+
+                <div *ngFor="let id of getInterestTeamIds()"
+                     class="badge bg-secondary d-flex align-items-center py-2 px-3 rounded-pill shadow-sm">
+                  <span class="me-2">{{ getTeamNameById(id) }}</span>
+                  <button type="button" *ngIf="isEditable" (click)="removeInterestTeam(id)"
+                          class="btn-close btn-close-white" style="font-size: 0.6rem;"></button>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="mb-4">
               <label class="form-label d-flex justify-content-between">
-                <span>רמת תקציב (1-5)</span>
+                <span>Budget Level (1-5)</span>
                 <span class="badge bg-primary">{{ profileForm.get('budgetLevel')?.value }}</span>
               </label>
               <input type="range" class="form-range" min="1" max="5" formControlName="budgetLevel">
@@ -40,24 +89,32 @@
 
             <div class="mb-4">
               <label class="form-label d-flex justify-content-between">
-                <span>רמת סיכון (1-5)</span>
+                <span>Risk Tolerance (1-5)</span>
                 <span class="badge bg-primary">{{ profileForm.get('riskTolerance')?.value }}</span>
               </label>
               <input type="range" class="form-range" min="1" max="5" formControlName="riskTolerance">
             </div>
 
             <div class="d-flex gap-2 mt-4">
-              <button type="button" *ngIf="!isEditable" (click)="toggleEdit()" class="btn btn-warning flex-grow-1 rounded-pill">
-                ✏️ עריכת העדפות
+              <button type="button" *ngIf="!isEditable" (click)="toggleEdit()" class="btn btn-warning flex-grow-1 rounded-pill fw-bold shadow-sm">
+                Edit Preferences
               </button>
               
-              <button type="button" *ngIf="isEditable" (click)="saveChanges()" class="btn btn-success flex-grow-1 rounded-pill shadow">
-                💾 שמור שינויים
+              <button type="button" *ngIf="isEditable" (click)="saveChanges()" [disabled]="isLoading" class="btn btn-success flex-grow-1 rounded-pill fw-bold shadow-sm">
+                <span *ngIf="!isLoading">Save Changes</span>
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                <span *ngIf="isLoading">Updating...</span>
               </button>
-              
+
               <button type="button" *ngIf="isEditable" (click)="toggleEdit()" class="btn btn-outline-secondary rounded-pill">
-                ביטול
+                Cancel
               </button>
+            </div>
+
+            <div *ngIf="isLoading" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-75 text-white" style="z-index: 9999;">
+              <div class="spinner-border mb-3" style="width: 3rem; height: 3rem;"></div>
+              <p class="h5">Calculating the best trips for your teams...</p>
+              <p class="small">This may take a few seconds.</p>
             </div>
 
           </form>

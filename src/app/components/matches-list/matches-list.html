@@ -1,17 +1,22 @@
 <div class="matches-container">
-  <h2>משחקים מומלצים עבורך</h2>
+  <h2>Recommended Matches</h2>
 
-  <div *ngIf="isLoading" class="loader">מחפש עבורך את הדילים הכי טובים...</div>
+  <div *ngIf="isLoading" class="loader">Looking for the best deals for you...</div>
 
-  <div class="matches-grid" *ngIf="!isLoading && matches.length > 0">
-    <app-game-card
-      *ngFor="let match of matches"
-      [matchTrip]="match">
-    </app-game-card>
+  <div *ngIf="!isLoading && matches.length > 0">
+    <div class="team-section" *ngFor="let group of groupedMatches">
+      <h3 class="team-title">{{ group.team }}</h3>
+      <div class="matches-grid">
+        <app-game-card
+          *ngFor="let match of group.matches"
+          [matchTrip]="match">
+        </app-game-card>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="!isLoading && matches.length === 0" class="no-matches">
-    <p>לא נמצאו משחקים שמתאימים להעדפות שלך כרגע.</p>
-    <button (click)="loadMatches()">נסה לעדכן שוב</button>
+    <p>No matches found that match your preferences at the moment.</p>
+    <button (click)="loadMatches()">Try updating again</button>
   </div>
 </div>

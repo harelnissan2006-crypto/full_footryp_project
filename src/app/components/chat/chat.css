@@ -1,18 +1,39 @@
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 400px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #f9f9f9;
+    height: 100vh;  /* ✅ כל גובה המסך */
+    background: #e5ddd5;  /* ✅ רקע כמו וואטסאפ */
 }
 
 .chat-header {
-    padding: 10px;
-    background: #343a40;
+    padding: 12px 16px;
+    background: #075e54;  /* ✅ ירוק וואטסאפ */
     color: white;
-    border-radius: 8px 8px 0 0;
     text-align: center;
+}
+
+.chat-header h5 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.chat-header small {
+    opacity: 0.8;
+    font-size: 0.75rem;
+}
+
+.online-users {
+    padding: 6px 15px;
+    background: #dcf8c6;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.user-badge {
+    font-size: 0.75rem;
+    color: #2e7d32;
 }
 
 .messages-list {
@@ -21,14 +42,15 @@
     padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .message-bubble {
-    max-width: 70%;
+    max-width: 65%;
     padding: 8px 12px;
-    border-radius: 15px;
+    border-radius: 12px;
     position: relative;
+    word-wrap: break-word;
 }
 
 .my-message {
@@ -36,9 +58,10 @@
 }
 
 .my-message .message-bubble {
-    background: #007bff;
-    color: white;
+    background: #dcf8c6;  /* ✅ ירוק בהיר וואטסאפ */
+    color: #111;
     border-bottom-right-radius: 2px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
 .other-message {
@@ -46,9 +69,10 @@
 }
 
 .other-message .message-bubble {
-    background: #e9ecef;
-    color: #333;
+    background: #ffffff;
+    color: #111;
     border-bottom-left-radius: 2px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
 .sender-name {
@@ -56,6 +80,13 @@
     display: block;
     margin-bottom: 2px;
     font-weight: bold;
+    color: #075e54;
+}
+
+.message-content {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
 .timestamp {
@@ -63,35 +94,51 @@
     display: block;
     text-align: right;
     margin-top: 4px;
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
 .chat-input {
     display: flex;
-    padding: 10px;
+    padding: 10px 12px;
+    background: #f0f0f0;
     border-top: 1px solid #ddd;
-    gap: 5px;
+    gap: 8px;
+    align-items: center;
 }
 
 .chat-input input {
     flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 24px;
     outline: none;
+    background: white;
+    font-size: 0.95rem;
 }
 
 .chat-input button {
-    background: #28a745;
+    background: #075e54;
     color: white;
     border: none;
-    padding: 0 15px;
-    border-radius: 20px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
     cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
+
+.chat-input button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .btn-join-chat {
     width: 100%;
-    background-color: #28a745; /* ירוק כדורגל */
+    background-color: #075e54;
     color: white;
     border: none;
     padding: 10px;
@@ -103,5 +150,84 @@
 }
 
 .btn-join-chat:hover {
-    background-color: #218838;
+    background-color: #128c7e;
+}
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-info {
+    text-align: center;
+    flex: 1;
+}
+
+.btn-back, .btn-leave {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-back:hover, .btn-leave:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.btn-leave {
+    color: #ffcdd2;
+    border-color: #ffcdd2;
+}
+
+.users-section {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #ccc;
+    background: #f9f9f9;
+    max-height: 80px;
+    overflow: hidden;
+}
+
+.users-panel {
+    flex: 1;
+    padding: 6px 10px;
+    overflow-y: auto;
+}
+
+.online-panel {
+    border-right: 1px solid #ddd;
+}
+
+.panel-title {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #555;
+    margin: 0 0 4px 0;
+}
+
+.users-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.user-badge {
+    font-size: 0.7rem;
+    background: #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #333;
+}
+
+.user-badge.online {
+    background: #c8e6c9;
+    color: #2e7d32;
+}
+
+.empty-label {
+    font-size: 0.7rem;
+    color: #aaa;
 }

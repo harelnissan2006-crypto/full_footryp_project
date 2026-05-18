@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     favoriteTeamId: Number,
+    otherInterestTeamsIds: [{type: Number}],
     budgetLevel: Number,
     riskTolerance: Number,
     age: Number

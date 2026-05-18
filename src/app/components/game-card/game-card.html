@@ -1,22 +1,23 @@
 <div class="card" *ngIf="matchTrip">
   <h3>{{ matchTrip.match.home_team }} vs {{ matchTrip.match.away_team }}</h3>
   <div class="details">
-    <p><strong>תאריך:</strong> {{ matchTrip.match.match_date }} בשעה {{ matchTrip.match.match_time }}</p>
-    <p><strong>מיקום:</strong> {{ matchTrip.match.home_city }} ({{ matchTrip.match.home_iata }})</p>
-    <p><strong>רמת סיכון:</strong> {{ matchTrip.match.risk_level }}</p>
+    <p><strong>Date:</strong> {{ matchTrip.match.match_date }} at {{ matchTrip.match.match_time }}</p>
+    <p><strong>Location:</strong> {{ matchTrip.match.home_city }} ({{ matchTrip.match.home_iata }})</p>
+    <p><strong>Risk Level:</strong> {{ matchTrip.match.risk_level }}</p>
   </div>
   
   <div class="flight-tag" [ngClass]="{'warning': matchTrip.match.flight_availability.status === 'too_soon'}">
     <span>{{ getFlightInfo() }}</span>
     <span *ngIf="matchTrip.match.flight_availability.price">
-      | מחיר: {{ matchTrip.match.flight_availability.price }}$
+      | Price: {{ matchTrip.match.flight_availability.price }}$
     </span>
   </div>
 
   <div class="card" *ngIf="matchTrip">
     <div class="card-footer">
-      <button class="btn-join-chat" [routerLink]="['/chat', matchTrip.team]">
-        הצטרף לצ'אט האוהדים
+      <button class="btn-join-chat" 
+        [routerLink]="['/chat', matchTrip.match.home_team + '_' + matchTrip.match.away_team + '_' + matchTrip.match.match_date]">
+        Join Group Chat
       </button>
     </div>
   </div>

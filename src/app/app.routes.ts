@@ -4,6 +4,7 @@ import { MatchesList } from './components/matches-list/matches-list';
 import { Profile } from './components/profile/profile';
 import { Login } from './components/login/login';
 import { Chat } from './components/chat/chat';
+import {UserSuggestions} from "./components/user-suggestions/user-suggestions";
 
 export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -12,5 +13,6 @@ export const routes: Routes = [
     {path: 'matches', component: MatchesList},
     {path: 'profile', component: Profile},
     {path: 'chat/:matchId', component: Chat},
+    {path: 'suggestions', component: UserSuggestions},
     {path: '**', redirectTo: '/login' }
 ];

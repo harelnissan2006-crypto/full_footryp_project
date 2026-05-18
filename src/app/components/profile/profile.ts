@@ -17,11 +17,16 @@ export class Profile implements OnInit {
   profileForm!: FormGroup;
   isEditable: boolean = false;
   userId = localStorage.getItem('userId');
+  isLoading: boolean = false;
   
-  teams = Object.entries(mappingData).map(([name, info]) => ({
-    id: info.team_id,
-    name: name
-  })).sort((a, b) => a.name.localeCompare(b.name));
+  leagues = Object.keys(mappingData);
+  selectedLeague: string = '';
+  filteredTeams: any[] = [];
+
+  // teams = Object.entries(mappingData).map(([name, info]) => ({
+  //   id: info.team_id,
+  //   name: name
+  // })).sort((a, b) => a.name.localeCompare(b.name));
 
   constructor(
     private formBuilder: FormBuilder,
@@ -36,6 +41,7 @@ export class Profile implements OnInit {
       username: [{ value: '', disabled: true }],
       email: [{ value: '', disabled: true }],
       favoriteTeamId: [null],
+      otherInterestTeamsIds: [[]],
       budgetLevel: [3],
       riskTolerance: [3],
       age: [null]
@@ -60,30 +66,84 @@ export class Profile implements OnInit {
     });
   }
 
+  onLeagueChange(event: any) {
+    this.selectedLeague = event.target.value;
+    if (this.selectedLeague) {
+      const teamsInLeague = (mappingData as any)[this.selectedLeague];
+      this.filteredTeams = Object.entries(teamsInLeague).map(([name, info]: [string, any]) => ({
+        id: info.team_id,
+        name: name
+      })).sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      this.filteredTeams = [];
+    }
+  }
+
+  getTeamNameById(id: number): string {
+    for (const league of this.leagues) {
+      const teamsInLeague = (mappingData as any)[league];
+      const foundEntry = Object.entries(teamsInLeague).find(([_, info]: [any, any]) => info.team_id === id);
+      if (foundEntry) {
+        return foundEntry[0];
+      }
+    }
+    return 'Unknown';
+  }
+
   toggleEdit() {
     this.isEditable = !this.isEditable;
     if (this.isEditable) {
       this.profileForm.get('favoriteTeamId')?.enable();
+      this.profileForm.get('otherInterestTeamsIds')?.enable();
       this.profileForm.get('budgetLevel')?.enable();
       this.profileForm.get('riskTolerance')?.enable();
       this.profileForm.get('age')?.enable();
     } else {
       this.profileForm.disable();
+      this.selectedLeague = '';
+      this.filteredTeams = [];
       this.loadUserData();
     }
   }
 
   saveChanges() {
     if (this.profileForm.valid && this.userId) {
+      this.isLoading = true; // 1. מפעילים את מצב הטעינה
       const updatedData = this.profileForm.getRawValue();
+      
       this.authService.updateUser(this.userId, updatedData).subscribe({
-        next: () => {
-          alert('הפרופיל עודכן בהצלחה!');
+        next: (response) => {
+          this.isLoading = false; // 2. מכבים את מצב הטעינה בהצלחה
+          alert('Profile and matches updated successfully!');
           this.isEditable = false;
           this.profileForm.disable();
+          this.router.navigate(['/profile']); // 3. מעבירים אותו לדף המשחקים כדי שיראה את התוצאות
         },
-        error: () => alert('שגיאה בעדכון הנתונים')
+        error: (err) => {
+          this.isLoading = false; // 4. מכבים את מצב הטעינה בשגיאה
+          alert('Error updating profile');
+          console.error(err);
+        }
       });
     }
+  }
+
+  getInterestTeamIds(): number[] {
+    return this.profileForm.get('otherInterestTeamsIds')?.value || [];
+  }
+
+  addInterestTeam(event: any) {
+    const teamId = parseInt(event.target.value);
+    if(teamId && !this.getInterestTeamIds().includes(teamId)){
+      const updatedIds = [...this.getInterestTeamIds(), teamId];
+      this.profileForm.get('otherInterestTeamsIds')?.setValue(updatedIds);
+      this.profileForm.get('otherInterestTeamsIds')?.markAsDirty();
+    }
+    event.target.value = '';
+  }
+  removeInterestTeam(teamId: number) {
+    const updatedIds = this.getInterestTeamIds().filter((id: number) => id !== teamId);
+    this.profileForm.get('otherInterestTeamsIds')?.setValue(updatedIds);
+    this.profileForm.get('otherInterestTeamsIds')?.markAsDirty();
   }
 }

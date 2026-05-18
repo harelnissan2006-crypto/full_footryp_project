@@ -38,4 +38,19 @@ export class MatchesList implements OnInit {
       }
     });
   }
+
+  get groupedMatches(): { team: string; matches: MatchTrip[] }[] {
+  const groups = new Map<string, MatchTrip[]>();
+  
+  for (const match of this.matches) {
+    const team = match.team;
+    if (!groups.has(team)) {
+      groups.set(team, []);
+    }
+    groups.get(team)!.push(match);
+  }
+  
+  return Array.from(groups.entries()).map(([team, matches]) => ({ team, matches }));
+  }
+
 }

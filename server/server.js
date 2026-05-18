@@ -5,14 +5,17 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const {Server} = require('socket.io');
+const userRoutes = require('./routes/users');
 
 const Message = require('./models/Message');
+const ChatRoom = require('./models/ChatRoom');
 const authRoutes = require('./routes/Auth');
 const matchRoutes = require('./routes/matches');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api/users-data', userRoutes);
 
 const server = http.createServer(app);
 
@@ -23,33 +26,74 @@ const io = new Server(server, {
     }
 });
 
+const roomUsers = new Map();
+const roomAllUsers = new Map();
+
 io.on('connection', (socket) => {
-    socket.on('joinMatchRoom', (matchId) => {
+
+    socket.on('joinRoom', async ({ matchId, username }) => {
         socket.join(matchId);
-        console.log(`User joined match room: ${matchId}`);
+        socket.data.matchId = matchId;
+        socket.data.username = username;
+
+        if (!roomUsers.has(matchId)) roomUsers.set(matchId, new Set());
+        roomUsers.get(matchId).add(username);
+
+        await ChatRoom.findOneAndUpdate(
+            { matchId },
+            { $addToSet: { participants: username } },
+            { upsert: true }
+        );
+
+        const room = await ChatRoom.findOne({ matchId });
+        const allParticipants = room ? room.participants : [username];
+
+        io.to(matchId).emit('online_users', Array.from(roomUsers.get(matchId)));
+        io.to(matchId).emit('all_users', allParticipants);
+        console.log(`${username} joined room: ${matchId}`);
     });
-    socket.on('sendMessage', (data) => {
-        const {matchId, content, senderName} = data;
-        const messageData = {
-            senderName, content, timestamp: new Date()
-        };
-        io.to(matchId).emit('newMessage', messageData);
+
+    socket.on('send_message', async (data) => {
+        const { matchId, senderName, content } = data;
+        const newMessage = new Message({
+            matchId,
+            senderName,
+            senderId: "69e1f8afa8808e8feb8d1172",
+            content,
+            timestamp: new Date()
+        });
+        await newMessage.save();
+        io.to(matchId).emit('receive_message', newMessage);
         console.log(`Message sent to match room ${matchId}: ${content}`);
     });
-});
 
-socket.on('sendMessage', async (data) => {
-    const {matchId, content, senderName} = data;
+    socket.on('leaveRoom', async ({ matchId, username }) => {
+        socket.leave(matchId);
 
-    const newMessage = new Message({
-        matchId: matchId,
-        senderName: senderName,
-        senderId:"69e1f8afa8808e8feb8d1172",
-        content: content,
-        timestamp: new Date()
+        if (roomUsers.has(matchId)) {
+            roomUsers.get(matchId).delete(username);
+            io.to(matchId).emit('online_users', Array.from(roomUsers.get(matchId)));
+        }
+
+        await ChatRoom.findOneAndUpdate(
+            { matchId },
+            { $pull: { participants: username } }
+        );
+
+        const room = await ChatRoom.findOne({ matchId });
+        io.to(matchId).emit('all_users', room ? room.participants : []);
+        console.log(`${username} left room: ${matchId}`);
     });
-    await newMessage.save();
-    io.to(matchId).emit('recieve_message', newMessage);
+
+    socket.on('disconnect', () => {
+        const { matchId, username } = socket.data;
+        if (matchId && username && roomUsers.has(matchId)) {
+            roomUsers.get(matchId).delete(username);
+            io.to(matchId).emit('online_users', Array.from(roomUsers.get(matchId)));
+            // disconnect = נשאר ב-allUsers
+        }
+    });
+
 });
 
 app.get('/api/teams', (req, res) => {
@@ -78,6 +122,6 @@ mongoose.connect('mongodb://localhost:27017/footryp')
     .catch(err => console.log('MongoDB connection error:', err));
 
 const PORT = 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -1,88 +1,122 @@
-<div class="register-container">
+<div class="register-container" dir="ltr">
   <div class="register-card">
     <div class="card-header">
-      <h2>הצטרפות ל-Footryp</h2>
-      <p>הצעד הראשון למציאת חבילת הכדורגל המושלמת</p>
+      <h2>Join Footryp</h2>
+      <p>The first step to finding your perfect football package</p>
     </div>
 
     <div class="card-body">
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         
-        <h3 class="section-title">פרטים בסיסיים</h3>
+        <h3 class="section-title">Basic Details</h3>
         
         <div class="form-group full-width">
-          <label>שם משתמש</label>
-          <input type="text" formControlName="username" placeholder="הכנס שם משתמש"
+          <label>Username</label>
+          <input type="text" formControlName="username" placeholder="Enter username"
                  [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
         </div>
 
         <div class="form-group full-width">
-          <label>כתובת אימייל</label>
+          <label>Email Address</label>
           <input type="email" formControlName="email" placeholder="email@example.com"
                  [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>סיסמה</label>
+            <label>Password</label>
             <input type="password" formControlName="password" placeholder="********"
                    [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
           </div>
           <div class="form-group">
-            <label>אימות סיסמה</label>
+            <label>Confirm Password</label>
             <input type="password" formControlName="confirmPassword" placeholder="********"
                    [class.error]="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched">
           </div>
         </div>
 
-        <h3 class="section-title">העדפות נסיעה ו-AI</h3>
+        <h3 class="section-title">Travel Preferences & AI</h3>
         
-        <div class="form-row">
-          <div class="form-group flex-grow">
-            <label>קבוצה אהובה</label>
-            <select formControlName="favoriteTeamId">
-              <option [value]="null" disabled>בחר קבוצה מהרשימה...</option>
-              <option *ngFor="let team of teams" [value]="team.id">{{ team.name }}</option>
+        <div class="form-group full-width">
+          <label>Primary Favorite Team</label>
+          <div class="form-row" style="margin-bottom: 0;">
+            <div class="form-group flex-grow">
+              <select (change)="onLeagueChangeFavorite($event)" style="margin-bottom: 10px;">
+                <option value="">-- Select League --</option>
+                <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
+              </select>
+              
+              <select formControlName="favoriteTeamId" [disabled]="!selectedLeagueFavorite">
+                <option [ngValue]="null">Select Team...</option>
+                <option *ngFor="let team of filteredTeamsFavorite" [ngValue]="team.id">{{ team.name }}</option>
+              </select>
+            </div>
+            
+            <div class="form-group width-small">
+              <label>Age</label>
+              <input type="number" formControlName="age"
+                     [class.error]="registerForm.get('age')?.invalid && registerForm.get('age')?.touched">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Additional Interest Teams</label>
+          <div class="form-row" style="gap: 10px; margin-bottom: 10px;">
+            <select (change)="onLeagueChangeInterest($event)" class="flex-grow">
+              <option value="">Select League...</option>
+              <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
+            </select>
+
+            <select (change)="addInterestTeam($event)" class="flex-grow" [disabled]="!selectedLeagueInterest">
+              <option value="">Add Team...</option>
+              <option *ngFor="let team of filteredTeamsInterest" [value]="team.id">{{ team.name }}</option>
             </select>
           </div>
-          <div class="form-group width-small">
-            <label>גיל</label>
-            <input type="number" formControlName="age"
-                   [class.error]="registerForm.get('age')?.invalid && registerForm.get('age')?.touched">
+          
+          <div class="interest-chips-container">
+            <div *ngFor="let id of getInterestTeamIds()" class="interest-chip">
+              <span>{{ getTeamNameById(id) }}</span>
+              <button type="button" (click)="removeInterestTeam(id)" class="remove-chip-btn">x</button>
+            </div>
+            <span *ngIf="getInterestTeamIds().length === 0" class="placeholder-text">No additional teams selected</span>
           </div>
         </div>
 
         <div class="form-group full-width slider-group">
           <label>
-            <span>רמת תקציב (1-5)</span>
+            <span>Budget Level (1-5)</span>
             <span class="badge">{{ registerForm.get('budgetLevel')?.value }}</span>
           </label>
           <input type="range" min="1" max="5" formControlName="budgetLevel">
           <div class="slider-labels">
-            <span>חיסכון</span>
-            <span>יוקרה</span>
+            <span>Economy</span>
+            <span>Luxury</span>
           </div>
         </div>
 
         <div class="form-group full-width slider-group">
           <label>
-            <span>מדד הרפתקנות</span>
+            <span>Adventure Rating</span>
             <span class="badge">{{ registerForm.get('riskTolerance')?.value }}</span>
           </label>
           <input type="range" min="1" max="5" formControlName="riskTolerance">
           <div class="slider-labels">
-            <span>בטוח</span>
-            <span>הרפתקני</span>
+            <span>Safe</span>
+            <span>Adventurous</span>
           </div>
         </div>
 
         <div class="button-group">
-          <button type="submit" [disabled]="registerForm.invalid" class="btn-primary">צור חשבון</button>
-          <button type="button" (click)="goBackToLogin()" class="btn-secondary">ביטול</button>
+          <button type="submit" [disabled]="registerForm.invalid || isLoading" class="btn-primary">
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading">Creating...</span>
+          </button>
+          <button type="button" (click)="goBackToLogin()" class="btn-secondary">Cancel</button>
         </div>
 
         <div class="footer-link">
-          כבר יש לך חשבון? <a (click)="goBackToLogin()">התחבר כאן</a>
+          Already have an account? <a (click)="goBackToLogin()">Login here</a>
         </div>
       </form>
     </div>

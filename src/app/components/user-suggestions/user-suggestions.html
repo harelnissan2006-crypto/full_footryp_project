@@ -1,0 +1,49 @@
+<div class="suggestions-container">
+    <div class="suggestions-header">
+        <h2>✈️ Travel Companions</h2>
+        <p>Fans with similar preferences to yours</p>
+    </div>
+
+    <div *ngIf="isLoading" class="loader">Finding your travel companions...</div>
+
+    <div *ngIf="!isLoading && suggestions.length === 0" class="empty">
+        <p>No matching fans found yet.</p>
+    </div>
+
+    <div class="cards-grid" *ngIf="!isLoading && suggestions.length > 0">
+        <div class="suggestion-card" *ngFor="let user of suggestions">
+
+            <div class="card-top">
+                <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+                <div class="user-info">
+                    <h3>{{ user.username }}</h3>
+                    <span class="score-badge" [style.background]="getScoreColor(user.matchScore)">
+                        {{ user.matchScore }}% match
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-details">
+                <div class="detail-row">
+                    <span class="label">💰 Budget</span>
+                    <div class="dots">
+                        <span *ngFor="let i of [1,2,3,4,5]"
+                              class="dot" [class.filled]="i <= user.budgetLevel"></span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <span class="label">⚡ Risk</span>
+                    <div class="dots">
+                        <span *ngFor="let i of [1,2,3,4,5]"
+                              class="dot" [class.filled]="i <= user.riskTolerance"></span>
+                    </div>
+                </div>
+                <div class="detail-row" *ngIf="user.age">
+                    <span class="label">🎂 Age</span>
+                    <span class="value">{{ user.age }}</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
