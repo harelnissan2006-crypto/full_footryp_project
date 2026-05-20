@@ -3,7 +3,7 @@ import json
 import requests
 import time
 from datetime import datetime, timedelta
-from amadeus import Client
+"""from amadeus import Client"""
 import unicodedata
 from pymongo import MongoClient
 import os
@@ -12,10 +12,10 @@ from bson.objectid import ObjectId
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
-amadeus = Client(
+"""amadeus = Client(
     client_id='MtlgyNLQ5nhoy5RuOkqmeoyYWeHwhd83',
     client_secret='GvbOjgVE2vsA0sru'
-)
+)"""
 
 MONGO_URI = "mongodb://localhost:27017/"
 client = MongoClient(MONGO_URI)
@@ -36,7 +36,6 @@ def load_mapping():
     with open(mapping_path, 'r', encoding='utf-8') as f:
         raw = json.load(f)
     
-    # ✅ שטח את המיפוי — מאחד את כל הקבוצות מכל הליגות למילון אחד
     flat = {}
     for league, teams in raw.items():
         for team_name, team_info in teams.items():
@@ -46,7 +45,7 @@ def load_mapping():
     
 TEAM_MAPPING = load_mapping()
 
-def calculate_estimated_price(distance, flight_date_str):
+"""def calculate_estimated_price(distance, flight_date_str):
     base_price = 50 
     price_per_km = 0.07 
     target_date = datetime.strptime(flight_date_str, "%Y-%m-%d")
@@ -60,9 +59,9 @@ def calculate_estimated_price(distance, flight_date_str):
         urgency_factor = 2.5 
         
     estimated = (base_price + (distance * price_per_km)) * urgency_factor
-    return round(estimated, 2)
+    return round(estimated, 2)"""
 
-def get_city_and_coords(address):
+"""def get_city_and_coords(address):
     try:
         url = "https://nominatim.openstreetmap.org/search"
         params = {
@@ -85,9 +84,9 @@ def get_city_and_coords(address):
             return city, latitude, longitude
     except Exception as e:
         print(f"Error: {e}")
-    return None, None, None
+    return None, None, None"""
 
-def get_nearest_iata(latitude, longitude):
+"""def get_nearest_iata(latitude, longitude):
     try:
         response = amadeus.reference_data.locations.airports.get(
             latitude=latitude,
@@ -98,9 +97,9 @@ def get_nearest_iata(latitude, longitude):
             return response.data[0]['iataCode']
     except Exception as e:
         print(f"Error: {e}")
-    return None
+    return None"""
 
-def check_flight_availability(origin_iata, destination_iata, departure_date, distance=3000):
+"""def check_flight_availability(origin_iata, destination_iata, departure_date, distance=3000):
     try:
         if not origin_iata or not destination_iata:
             return {"direct": False, "status": "missing_iata"}
@@ -134,7 +133,7 @@ def check_flight_availability(origin_iata, destination_iata, departure_date, dis
             "status": "estimated", 
             "price": estimated,
             "source": "Predictive Model"
-        }
+        }"""
 
 def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
     official_name = None
@@ -167,7 +166,6 @@ def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
         if not matches:
             return None
 
-        # ✅ עד 3 משחקים
         matches_to_process = matches[:3]
         results = []
 
@@ -198,7 +196,6 @@ def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
                     None
                 )
 
-            # ✅ אם הבית לא במיפוי — דלג על המשחק הזה, אל תעצור
             if not dest_info:
                 print(f"DEBUG: Skipping match — home team '{home_team_name}' not in mapping")
                 continue
@@ -207,7 +204,7 @@ def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
             home_iata = dest_info['iata']
             distance = dest_info.get('distance_from_tlv', 3000)
 
-            if user_origin_iata == home_iata:
+            '''if user_origin_iata == home_iata:
                 flight_result = {"direct": True, "status": "local", "price": 0}
             else:
                 flight_result = check_flight_availability(user_origin_iata, home_iata, flight_date_str, distance)
@@ -224,8 +221,18 @@ def get_match_data_hybrid(team_input, user_origin_iata='TLV', days_before=1):
                 "risk_level": risk_label,
                 "home_city": home_city,
                 "home_iata": home_iata
+            })'''
+            
+            results.append({
+                "home_team": home_team_name,
+                "away_team": next_match['awayTeam']['name'],
+                "match_date": match_date_str,
+                "match_time": next_match['utcDate'].split('T')[1].replace('Z', ''),
+                "flight_date": flight_date_str,
+                "home_city": home_city,
+                "home_iata": home_iata,
+                "distance_from_tlv": distance
             })
-
         return results if results else None
 
     except Exception as e:
@@ -257,25 +264,23 @@ def run_engine_for_user(user_id_input):
         all_teams_to_check.extend(other_interests)
         
     all_teams_to_check = list(set(all_teams_to_check))
-    print(f"DEBUG: Teams to process: {all_teams_to_check}") # האם דורטמונד כאן?
+    print(f"DEBUG: Teams to process: {all_teams_to_check}")
 
-    origin = user.get("origin_iata") or user.get("origin") or "TLV"
+    #origin = user.get("origin_iata") or user.get("origin") or "TLV"
 
     print(f"DEBUG: Deleting old matches for user {user_id_input}")
     db.suggested_matches.delete_many({"user_id": user_id_input})
 
     for team in all_teams_to_check:
         print(f"DEBUG: Fetching matches for team ID: {team}...")
-        matches_list = get_match_data_hybrid(team, origin)
+        matches_list = get_match_data_hybrid(team)
     
-        # ✅ הוסף את זה
         print(f"DEBUG: matches_list result = {matches_list}")
         
         if matches_list:
             for match_data in matches_list:
                 print(f"DEBUG: Saving match: {match_data['home_team']} vs {match_data['away_team']}")
                 
-                # שמירה ב-DB - שימוש ב-update_one עם תאריך המשחק כדי למנוע כפילויות
                 db.suggested_matches.update_one(
                     {
                         "user_id": user_id_input, 
@@ -284,7 +289,7 @@ def run_engine_for_user(user_id_input):
                     },
                     {"$set": {
                         "match": match_data,
-                        "flight_availability": match_data['flight_availability'],
+                        # "flight_availability": match_data['flight_availability'],
                         "updated_at": datetime.utcnow(),
                         "status": "active"
                     }},

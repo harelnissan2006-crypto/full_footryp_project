@@ -11,11 +11,13 @@ const Message = require('./models/Message');
 const ChatRoom = require('./models/ChatRoom');
 const authRoutes = require('./routes/Auth');
 const matchRoutes = require('./routes/matches');
+const packageRoutes = require('./routes/packages');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/users-data', userRoutes);
+app.use('/api/packages', packageRoutes);
 
 const server = http.createServer(app);
 

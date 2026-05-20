@@ -1,0 +1,70 @@
+<div class="packages-container">
+
+    <div class="packages-header">
+        <button class="btn-back" (click)="goBack()">◀ Back</button>
+        <div class="header-info" *ngIf="matchData">
+            <h2>{{ matchData.home_team }} vs {{ matchData.away_team }}</h2>
+            <p>{{ matchData.match_date }} · {{ matchData.home_city }}</p>
+        </div>
+    </div>
+
+    <div *ngIf="isLoading" class="loader">
+        <div class="spinner"></div>
+        <p>Finding the best packages for you...</p>
+    </div>
+
+    <div *ngIf="error && !isLoading" class="error-msg">
+        <p>{{ error }}</p>
+        <button (click)="goBack()">Go Back</button>
+    </div>
+
+    <div *ngIf="!isLoading && !error && packages.length === 0" class="empty">
+        <p>No packages found for this match.</p>
+    </div>
+
+    <div class="packages-list" *ngIf="!isLoading && packages.length > 0">
+        <div class="package-card" *ngFor="let pkg of packages; let i = index">
+
+            <!-- ציון + המלצה -->
+            <div class="card-top">
+                <div class="rank">#{{ i + 1 }}</div>
+                <div class="score-section">
+                    <span class="score-badge" [style.background]="getScoreColor(pkg.score)">
+                        {{ pkg.score }}% match
+                    </span>
+                    <p class="recommendation">{{ pkg.recommendation }}</p>
+                </div>
+                <div class="total-price">
+                    <span class="price-label">Total</span>
+                    <span class="price-value">${{ pkg.totalPrice }}</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <!-- טיסה -->
+                <div class="section flight-section">
+                    <h4>✈️ Flight</h4>
+                    <div class="details-row">
+                        <span>${{ pkg.flight.price }}</span>
+                        <span>{{ getStopsLabel(pkg.flight.stops) }}</span>
+                        <span *ngIf="pkg.flight.duration !== 'N/A'">{{ pkg.flight.duration }}</span>
+                        <span class="source-tag">{{ pkg.flight.source }}</span>
+                    </div>
+                </div>
+
+                <!-- מלון -->
+                <div class="section hotel-section">
+                    <h4>🏨 Hotel</h4>
+                    <div class="details-row">
+                        <span class="hotel-name">{{ pkg.hotel.name }}</span>
+                        <span>{{ getRatingStars(pkg.hotel.rating) }}</span>
+                        <span>${{ pkg.hotel.price }}/night</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DatePipe, CommonModule } from '@angular/common';
 import { MatchTrip } from '../../models/match-trip.model';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-game-card',
@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
 export class GameCard implements OnInit {
   @Input() matchTrip!: MatchTrip;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     if (!this.matchTrip) {
@@ -21,15 +21,20 @@ export class GameCard implements OnInit {
     }
   }
 
-  getFlightInfo(): string {
-  if (!this.matchTrip) return 'Loading...';
+  // getFlightInfo(): string {
+  // if (!this.matchTrip) return 'Loading...';
   
-  const flight = this.matchTrip.match?.flight_availability;
+  // const flight = this.matchTrip.match?.flight_availability;
   
-  if (flight?.direct) return 'Direct Flight';
-  if (flight?.connecting) return 'Connecting Flight';
-  if (flight?.status === 'too_soon') return 'Too early for flight prices';
+  // if (flight?.direct) return 'Direct Flight';
+  // if (flight?.connecting) return 'Connecting Flight';
+  // if (flight?.status === 'too_soon') return 'Too early for flight prices';
   
-  return 'No Flight Information';
+  // return 'No Flight Information';
+  // }
+
+  findPackage(): void{
+    const matchId = this.matchTrip._id;
+    this.router.navigate(['/packages', matchId])
   }
 }

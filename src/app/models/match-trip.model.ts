@@ -13,8 +13,9 @@ export interface MatchDetails {
   flight_date: string;
   home_city: string;
   home_iata: string;
-  risk_level: string;
-  flight_availability: FlightAvailability;
+  distance_from_tlv: number;
+  // risk_level: string;
+  // flight_availability: FlightAvailability;
 }
 
 export interface MatchTrip {
@@ -24,5 +25,5 @@ export interface MatchTrip {
   match: MatchDetails;
   status: string;
   updated_at: string;
-  flight_availability: FlightAvailability; 
+  // flight_availability: FlightAvailability; 
 }
