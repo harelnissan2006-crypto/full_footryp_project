@@ -19,7 +19,7 @@ export class UserSuggestions implements OnInit {
   constructor(private authService: AuthService, private router: Router) {}
 
   openDM(username: string): void{
-    this.router.navigate(['/dm', username]);
+    this.router.navigate(['/dm', username], { queryParams: { from: 'travelCompanions' } });
   }
 
   ngOnInit(): void{

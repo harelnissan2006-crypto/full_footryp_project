@@ -1,0 +1,27 @@
+<div class="chats-container">
+  <div class="chats-header">
+    <h2>My Chats</h2>
+  </div>
+
+  <div class="chats-content">
+    <div *ngIf="isLoading" class="loading">Loading chats...</div>
+    
+    <div *ngIf="!isLoading && chats.length === 0" class="empty">
+      <p>No chats yet. Start a conversation!</p>
+    </div>
+
+    <div *ngIf="!isLoading && chats.length > 0" class="chats-list">
+      <div *ngFor="let chat of chats" 
+           class="chat-item" 
+           (click)="openChat(chat)">
+        <div class="chat-info">
+          <h3>{{ getChatDisplayName(chat) }}</h3>
+          <p class="last-message">{{ chat.lastMessage || 'No messages yet' }}</p>
+        </div>
+        <div class="chat-meta">
+          <small class="timestamp">{{ chat.lastMessageTime | date:'short' }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

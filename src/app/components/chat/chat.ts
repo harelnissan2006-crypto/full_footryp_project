@@ -26,6 +26,8 @@ export class Chat implements OnInit, OnDestroy {
     private usersSubscription?: Subscription;
     private allUsersSubscription?: Subscription;
 
+    backTarget: string | null = null;
+
     constructor(
         private chatService: ChatService,
         private route: ActivatedRoute,
@@ -36,10 +38,11 @@ export class Chat implements OnInit, OnDestroy {
         this.userName = localStorage.getItem('username') || 'user';
         const matchIdParam = this.route.snapshot.paramMap.get('matchId');
         const otherUserParam = this.route.snapshot.paramMap.get('otherUser');
+        this.backTarget = this.route.snapshot.queryParamMap.get('from');
         
         if(otherUserParam){
             const users = [this.userName, otherUserParam].sort();
-            this.matchId = `dm_${users[0]}_${users[1]}}`;
+            this.matchId = `dm_${users[0]}_${users[1]}`;
             this.isDM = true;
             this.otherUser = otherUserParam;
         }else{
@@ -83,6 +86,14 @@ export class Chat implements OnInit, OnDestroy {
     }
 
     goBack(): void {
+        if (this.backTarget === 'chats') {
+            this.router.navigate(['/chats']);
+            return;
+        }
+        if (this.backTarget === 'travelCompanions') {
+            this.router.navigate(['/suggestions']);
+            return;
+        }
         this.router.navigate(['/matches']);
     }
 

@@ -49,6 +49,10 @@ export class ChatService {
         return this.http.get<any[]>(`${this.url}/api/users/chat/${matchId}/messages`);
     }
 
+    getUserChats(username: string): Observable<any[]>{
+        return this.http.get<any[]>(`${this.url}/api/users-data/chats/${username}`);
+    }
+
     leaveRoom(matchId: string, username: string) {
         this.socket.emit('leaveRoom', { matchId, username });
     }
