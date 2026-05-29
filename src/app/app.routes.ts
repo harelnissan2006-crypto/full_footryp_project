@@ -14,6 +14,7 @@ export const routes: Routes = [
     {path: 'matches', component: MatchesList},
     {path: 'profile', component: Profile},
     {path: 'chat/:matchId', component: Chat},
+    {path: 'dm/:otherUser', component: Chat},
     {path: 'suggestions', component: UserSuggestions},
     {path: 'packages/:matchId', component: Packages},
     {path: '**', redirectTo: '/login' }

@@ -21,9 +21,14 @@
                         {{ user.matchScore }}% match
                     </span>
                 </div>
+                <button class="btn-message" (click)="openDM(user.username)">💬</button>
             </div>
 
             <div class="card-details">
+                <div class="detail-row" *ngIf="user.favoriteTeamId">
+                    <span class="label">⚽ Favorite Team</span>
+                    <span class="value">{{ getTeamName(user.favoriteTeamId) }}</span>
+                </div>
                 <div class="detail-row">
                     <span class="label">💰 Budget</span>
                     <div class="dots">

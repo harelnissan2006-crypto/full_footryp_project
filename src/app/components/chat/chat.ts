@@ -17,32 +17,48 @@ export class Chat implements OnInit, OnDestroy {
     newMessage: string = '';
     messages: any[] = [];
     onlineUsers: string[] = [];
-    allUsers: string[] = [];        // ✅ כל מי שהיה בצ'אט
+    allUsers: string[] = [];
     userName: string = '';
+    isDM: boolean = false;
+    otherUser: string = '';
 
     private messageSubscription?: Subscription;
     private usersSubscription?: Subscription;
-    private allUsersSubscription?: Subscription;  // ✅
+    private allUsersSubscription?: Subscription;
 
     constructor(
         private chatService: ChatService,
         private route: ActivatedRoute,
-        private router: Router              // ✅
+        private router: Router 
     ) {}
 
     ngOnInit(): void {
-        this.matchId = this.route.snapshot.paramMap.get('matchId') || '';
         this.userName = localStorage.getItem('username') || 'user';
-
+        const matchIdParam = this.route.snapshot.paramMap.get('matchId');
+        const otherUserParam = this.route.snapshot.paramMap.get('otherUser');
+        
+        if(otherUserParam){
+            const users = [this.userName, otherUserParam].sort();
+            this.matchId = `dm_${users[0]}_${users[1]}}`;
+            this.isDM = true;
+            this.otherUser = otherUserParam;
+        }else{
+            this.matchId = matchIdParam || '';
+            this.isDM = false;
+        }
+           
         this.chatService.getHistory(this.matchId).subscribe({
             next: (history) => { this.messages = history; this.scrollToBottom(); },
             error: (err) => console.error('Error loading history:', err)
         });
 
-        this.chatService.getRoomParticipants(this.matchId).subscribe({
+        if(!this.isDM){
+            this.chatService.getRoomParticipants(this.matchId).subscribe({
             next: (participants) => {this.allUsers = participants;},
             error: (err) => console.error('Error loading participants:', err)
-        });
+            });
+        }
+        
         this.chatService.joinRoom(this.matchId, this.userName);
 
         this.messageSubscription = this.chatService.getMessages().subscribe((message: any) => {
@@ -54,7 +70,6 @@ export class Chat implements OnInit, OnDestroy {
             this.onlineUsers = users;
         });
 
-        // ✅ כל המשתמשים
         this.allUsersSubscription = this.chatService.getAllUsers().subscribe((users: string[]) => {
             this.allUsers = users;
         });
@@ -67,14 +82,12 @@ export class Chat implements OnInit, OnDestroy {
         }
     }
 
-    // ✅ חזרה למשחקים בלי התנתקות
     goBack(): void {
         this.router.navigate(['/matches']);
     }
 
-    // ✅ התנתקות מהצ'אט עם אישור
     leaveChat(): void {
-        const confirmed = confirm('האם אתה בטוח שאתה רוצה להתנתק מהצ\'אט?');
+        const confirmed = confirm('Are you sure you want to leve the chat?');
         if (confirmed) {
             this.chatService.leaveRoom(this.matchId, this.userName);
             this.router.navigate(['/matches']);
@@ -84,7 +97,7 @@ export class Chat implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.messageSubscription?.unsubscribe();
         this.usersSubscription?.unsubscribe();
-        this.allUsersSubscription?.unsubscribe();  // ✅
+        this.allUsersSubscription?.unsubscribe();
     }
 
     private scrollToBottom(): void {

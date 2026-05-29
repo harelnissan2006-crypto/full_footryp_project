@@ -108,19 +108,19 @@ export class Profile implements OnInit {
 
   saveChanges() {
     if (this.profileForm.valid && this.userId) {
-      this.isLoading = true; // 1. מפעילים את מצב הטעינה
+      this.isLoading = true;
       const updatedData = this.profileForm.getRawValue();
       
       this.authService.updateUser(this.userId, updatedData).subscribe({
         next: (response) => {
-          this.isLoading = false; // 2. מכבים את מצב הטעינה בהצלחה
+          this.isLoading = false;
           alert('Profile and matches updated successfully!');
           this.isEditable = false;
           this.profileForm.disable();
-          this.router.navigate(['/profile']); // 3. מעבירים אותו לדף המשחקים כדי שיראה את התוצאות
+          this.router.navigate(['/profile']);
         },
         error: (err) => {
-          this.isLoading = false; // 4. מכבים את מצב הטעינה בשגיאה
+          this.isLoading = false;
           alert('Error updating profile');
           console.error(err);
         }

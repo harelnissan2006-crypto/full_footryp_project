@@ -9,7 +9,11 @@ export class ChatService {
     private url = 'http://localhost:3000';
 
     constructor(private http: HttpClient) {
-        this.socket = io(this.url);
+        this.socket = io(this.url, {
+            auth: {
+                token: localStorage.getItem('token')
+            }
+        });
     }
 
     joinRoom(matchId: string, username: string) {
@@ -32,7 +36,6 @@ export class ChatService {
         });
     }
 
-    // ✅ כל המשתמשים שהיו בצ'אט
     getAllUsers(): Observable<string[]> {
         return new Observable(observer => {
             this.socket.on('all_users', (users) => observer.next(users));
@@ -46,7 +49,6 @@ export class ChatService {
         return this.http.get<any[]>(`${this.url}/api/users/chat/${matchId}/messages`);
     }
 
-    // ✅ התנתקות מהצ'אט
     leaveRoom(matchId: string, username: string) {
         this.socket.emit('leaveRoom', { matchId, username });
     }

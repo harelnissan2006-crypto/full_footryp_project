@@ -12,13 +12,16 @@ import { RouterModule, Router } from '@angular/router';
 })
 export class GameCard implements OnInit {
   @Input() matchTrip!: MatchTrip;
+  localTime: string = '';
 
   constructor(private router: Router) { }
 
   ngOnInit(): void {
     if (!this.matchTrip) {
       console.error('GameCard: matchTrip is undefined');
+      return;
     }
+    this.localTime = this.convertToLocalTime();
   }
 
   // getFlightInfo(): string {
@@ -36,5 +39,22 @@ export class GameCard implements OnInit {
   findPackage(): void{
     const matchId = this.matchTrip._id;
     this.router.navigate(['/packages', matchId])
+  }
+
+  convertToLocalTime(): string{
+    try{
+      const {match_date, match_time, timezone} = this.matchTrip.match;
+      if(!match_time || match_time === '00:00:00') return 'TBD';
+
+      const utcDate = new Date(`${match_date}T${match_time}Z`);
+      return utcDate.toLocaleTimeString('en-GB', {
+        timeZone: timezone,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }catch{
+      return this.matchTrip.match.match_time?.slice(0,5) || 'TBD';
+    }
+
   }
 }

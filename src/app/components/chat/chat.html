@@ -1,17 +1,17 @@
 <div class="chat-container">
     <div class="chat-header">
         <div class="header-actions">
-            <button class="btn-back" (click)="goBack()">◀</button>   <!-- ✅ -->
+            <button class="btn-back" (click)="goBack()">◀</button> 
             <div class="header-info">
-                <h5>Fan Chat - {{ matchId }}</h5>
-                <small>{{ onlineUsers.length }} online</small>
+                <h5 *ngIf="!isDM">Fan Chat - {{ matchId }}</h5>
+                <h5 *ngIf="isDM">💬 {{ otherUser }}</h5>
+                <small *ngIf="!isDM">{{ onlineUsers.length }} online</small>
             </div>
-            <button class="btn-leave" (click)="leaveChat()">Leave</button>  <!-- ✅ -->
+            <button class="btn-leave" *ngIf="!isDM" (click)="leaveChat()">Leave</button> 
         </div>
     </div>
 
-    <!-- משתמשים מחוברים כרגע -->
-    <div class="users-section">
+    <div class="users-section" *ngIf="!isDM">
         <div class="users-panel online-panel">
             <p class="panel-title">🟢 Online now ({{ onlineUsers.length }})</p>
             <div class="users-list">
@@ -20,7 +20,6 @@
             </div>
         </div>
 
-        <!-- כל המשתמשים שהיו בצ'אט -->  <!-- ✅ -->
         <div class="users-panel all-panel">
             <p class="panel-title">👥 All members ({{ allUsers.length }})</p>
             <div class="users-list">

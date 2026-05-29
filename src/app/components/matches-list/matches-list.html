@@ -1,22 +1,39 @@
 <div class="matches-container">
-  <h2>Recommended Matches</h2>
+    <h2>Recommended Matches</h2>
 
-  <div *ngIf="isLoading" class="loader">Looking for the best deals for you...</div>
+    <div class="filters">
+        <div class="filter-group">
+            <label>Show matches from:</label>
+            <input type="date" [(ngModel)]="filterDate" (change)="loadMatches()" />
+        </div>
 
-  <div *ngIf="!isLoading && matches.length > 0">
-    <div class="team-section" *ngFor="let group of groupedMatches">
-      <h3 class="team-title">{{ group.team }}</h3>
-      <div class="matches-grid">
-        <app-game-card
-          *ngFor="let match of group.matches"
-          [matchTrip]="match">
-        </app-game-card>
-      </div>
+        <div class="filter-group" *ngIf="competitions.length > 0">
+            <label>Competition:</label>
+            <select [(ngModel)]="filterCompetition" (change)="loadMatches()">
+                <option value="">All</option>
+                <option *ngFor="let c of competitions" [value]="c">{{ c }}</option>
+            </select>
+        </div>
+
+        <button *ngIf="filterDate || filterCompetition" (click)="clearFilters()">Clear</button>
     </div>
-  </div>
 
-  <div *ngIf="!isLoading && matches.length === 0" class="no-matches">
-    <p>No matches found that match your preferences at the moment.</p>
-    <button (click)="loadMatches()">Try updating again</button>
-  </div>
+    <div *ngIf="isLoading" class="loader">Looking for the best deals for you...</div>
+
+    <div *ngIf="!isLoading && matches.length > 0">
+        <div class="team-section" *ngFor="let group of groupedMatches">
+            <h3 class="team-title">{{ group.team }}</h3>
+            <div class="matches-grid">
+                <app-game-card
+                    *ngFor="let match of group.matches"
+                    [matchTrip]="match">
+                </app-game-card>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!isLoading && matches.length === 0" class="no-matches">
+        <p>No matches found.</p>
+        <button (click)="clearFilters()">Clear filters</button>
+    </div>
 </div>

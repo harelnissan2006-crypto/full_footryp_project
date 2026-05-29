@@ -6,9 +6,12 @@ const path = require('path');
 const http = require('http');
 const {Server} = require('socket.io');
 const userRoutes = require('./routes/users');
+const jwt = require('jsonwebtoken');
+const {JWT_SECRET} = require('./middleware/auth');
 
 const Message = require('./models/Message');
 const ChatRoom = require('./models/ChatRoom');
+const Match = require('./models/Match');
 const authRoutes = require('./routes/Auth');
 const matchRoutes = require('./routes/matches');
 const packageRoutes = require('./routes/packages');
@@ -32,6 +35,18 @@ const roomUsers = new Map();
 const roomAllUsers = new Map();
 
 io.on('connection', (socket) => {
+
+    const token = socket.handshake.auth?.token;
+    let senderId = null;
+
+    if(token){
+        try{
+            const decoded = jwt.verify(token, JWT_SECRET);
+            senderId = decoded.userId;
+        }catch(err){
+            console.log('Invalid socket token');
+        }
+    }
 
     socket.on('joinRoom', async ({ matchId, username }) => {
         socket.join(matchId);
@@ -57,10 +72,14 @@ io.on('connection', (socket) => {
 
     socket.on('send_message', async (data) => {
         const { matchId, senderName, content } = data;
+        if(!senderId){
+            socket.emit('error', {message: 'Unauthorized'});
+            return;
+        }
         const newMessage = new Message({
             matchId,
             senderName,
-            senderId: "69e1f8afa8808e8feb8d1172",
+            senderId,
             content,
             timestamp: new Date()
         });
@@ -92,27 +111,31 @@ io.on('connection', (socket) => {
         if (matchId && username && roomUsers.has(matchId)) {
             roomUsers.get(matchId).delete(username);
             io.to(matchId).emit('online_users', Array.from(roomUsers.get(matchId)));
-            // disconnect = נשאר ב-allUsers
         }
     });
 
 });
 
 app.get('/api/teams', (req, res) => {
-    try {
+    try{
         const mappingPath = path.join(__dirname, 'scripts', 'mapping.json');
         const rawData = fs.readFileSync(mappingPath, 'utf8');
         const mapping = JSON.parse(rawData);
 
-        const teams = Object.entries(mapping).map(([name, info]) => ({
-            name: name,
-            id: info.team_id
-        }));
-
+        const teams = [];
+        for(const league of Object.values(mapping)){
+            for(const [teamName, teamInfo] of Object.entries(league)){
+                teams.push({
+                    name: teamName,
+                    id: teamInfo.team_id
+                });
+            }
+        }
         res.json(teams);
-    } catch (error) {
+    }
+    catch(error){
         console.error("Error reading mapping:", error);
-        res.status(500).json({ message: "Could not load teams" });
+        res.status(500).json({message: "Could not load teams"});
     }
 });
 

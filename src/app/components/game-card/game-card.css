@@ -1,0 +1,88 @@
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.match-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 8px;
+}
+
+.team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #222;
+}
+
+.crest {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.vs {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.details {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 14px;
+}
+
+.details p {
+    margin: 4px 0;
+}
+
+.card-footer {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-find-package, .btn-join-chat {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-find-package {
+    background: #075e54;
+    color: white;
+}
+
+.btn-find-package:hover {
+    background: #128c7e;
+}
+
+.btn-join-chat {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-join-chat:hover {
+    background: #ddd;
+}

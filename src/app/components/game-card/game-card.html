@@ -1,9 +1,29 @@
 <div class="card" *ngIf="matchTrip">
-    <h3>{{ matchTrip.match.home_team }} vs {{ matchTrip.match.away_team }}</h3>
+    <div class="match-header">
+        <div class="team">
+            <img *ngIf="matchTrip.match.home_crest" 
+                 [src]="matchTrip.match.home_crest" 
+                 [alt]="matchTrip.match.home_team"
+                 class="crest" />
+            <span>{{ matchTrip.match.home_team }}</span>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="team">
+            <img *ngIf="matchTrip.match.away_crest" 
+                 [src]="matchTrip.match.away_crest" 
+                 [alt]="matchTrip.match.away_team"
+                 class="crest" />
+            <span>{{ matchTrip.match.away_team }}</span>
+        </div>
+    </div>
+
     <div class="details">
-        <p><strong>Date:</strong> {{ matchTrip.match.match_date }} at {{ matchTrip.match.match_time }}</p>
+        <p><strong>Date:</strong> {{ matchTrip.match.match_date }} at {{ localTime }} (local time)</p>
         <p><strong>Location:</strong> {{ matchTrip.match.home_city }} ({{ matchTrip.match.home_iata }})</p>
         <p><strong>Flight Date:</strong> {{ matchTrip.match.flight_date }}</p>
+        <p *ngIf="matchTrip.competition"><strong>Competition:</strong> {{ matchTrip.competition }}</p>
     </div>
 
     <div class="card-footer">

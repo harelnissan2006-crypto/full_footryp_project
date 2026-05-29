@@ -25,7 +25,6 @@
     <div class="packages-list" *ngIf="!isLoading && packages.length > 0">
         <div class="package-card" *ngFor="let pkg of packages; let i = index">
 
-            <!-- ציון + המלצה -->
             <div class="card-top">
                 <div class="rank">#{{ i + 1 }}</div>
                 <div class="score-section">
@@ -42,7 +41,6 @@
 
             <div class="card-body">
 
-                <!-- טיסה -->
                 <div class="section flight-section">
                     <h4>✈️ Flight</h4>
                     <div class="details-row">
@@ -53,7 +51,6 @@
                     </div>
                 </div>
 
-                <!-- מלון -->
                 <div class="section hotel-section">
                     <h4>🏨 Hotel</h4>
                     <div class="details-row">

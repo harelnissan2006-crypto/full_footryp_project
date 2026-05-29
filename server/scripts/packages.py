@@ -54,57 +54,57 @@ def save_cached_hotels(cache_key, hotels):
     )
     log(f"Cached {len(hotels)} hotels for key: {cache_key}")
 
-# def get_hotels(city_code, check_in, check_out):
-#     cache_key = f"{city_code}_{check_in}_{check_out}"
-#     cached = get_cached_hotels(cache_key)
-#     if cached:
-#         return cached
+'''def get_hotels(city_code, check_in, check_out):
+    cache_key = f"{city_code}_{check_in}_{check_out}"
+    cached = get_cached_hotels(cache_key)
+    if cached:
+        return cached
     
-#     try:
-#         log(f"Fetching hotel list for {city_code}")
-#         list_response = amadeus.reference_data.locations.hotels.by_city.get(
-#             cityCode=city_code,
-#             radius=20,
-#             radiusUnit='KM',
-#             ratings=[3,4,5]
-#         )
-#         if not list_response.data:
-#             log(f"No hotels found for city code: {city_code}")
-#             return []
+    try:
+        log(f"Fetching hotel list for {city_code}")
+        list_response = amadeus.reference_data.locations.hotels.by_city.get(
+            cityCode=city_code,
+            radius=20,
+            radiusUnit='KM',
+            ratings=[3,4,5]
+        )
+        if not list_response.data:
+            log(f"No hotels found for city code: {city_code}")
+            return []
         
-#         hotel_ids = [h['hotelId'] for h in list_response.data[:10]]
-#         log(f"Found {len(hotel_ids)} hotels, fetching prices...")
+        hotel_ids = [h['hotelId'] for h in list_response.data[:10]]
+        log(f"Found {len(hotel_ids)} hotels, fetching prices...")
 
-#         search_response = amadeus.shopping.hotel_offers_search.get(
-#             hotelIds=hotel_ids,  
-#             checkInDate=check_in,
-#             checkOutDate=check_out,
-#             adults=1,
-#             currency='USD',
-#             bestRateOnly=True
-#         )
-#         hotels=[]
-#         for offer in search_response.data:
-#             hotel = offer.get('hotel', {})
-#             offers = offer.get('offers', [])
-#             if not offers:
-#                 continue
+        search_response = amadeus.shopping.hotel_offers_search.get(
+            hotelIds=hotel_ids,  
+            checkInDate=check_in,
+            checkOutDate=check_out,
+            adults=1,
+            currency='USD',
+            bestRateOnly=True
+        )
+        hotels=[]
+        for offer in search_response.data:
+            hotel = offer.get('hotel', {})
+            offers = offer.get('offers', [])
+            if not offers:
+                continue
 
-#             price = float(offers[0]['price']['total'])
-#             hotels.append({
-#                 "hotelId": hotel.get('hotelId'),
-#                 "name": hotel.get('name'),
-#                 "rating": hotel.get('rating', 3),
-#                 "latitude": hotel.get('latitude'),
-#                 "longitude": hotel.get('longitude'),
-#                 "price": price,
-#                 "currency": "USD"
-#             })
-#         save_cached_hotels(cache_key, hotels)
-#         return hotels
-#     except Exception as e:
-#         log(f"Error fetching hotels: {e}")
-#         return get_mock_hotels(city_code)
+            price = float(offers[0]['price']['total'])
+            hotels.append({
+                "hotelId": hotel.get('hotelId'),
+                "name": hotel.get('name'),
+                "rating": hotel.get('rating', 3),
+                "latitude": hotel.get('latitude'),
+                "longitude": hotel.get('longitude'),
+                "price": price,
+                "currency": "USD"
+            })
+        save_cached_hotels(cache_key, hotels)
+        return hotels
+    except Exception as e:
+        log(f"Error fetching hotels: {e}")
+        return get_mock_hotels(city_code)'''
 
 def get_hotels(city_code, check_in, check_out):
     cache_key = f"{city_code}_{check_in}_{check_out}"
@@ -113,7 +113,6 @@ def get_hotels(city_code, check_in, check_out):
         return cached
 
     try:
-        # ✅ קבל access token
         token_response = requests.post(
             'https://test.api.amadeus.com/v1/security/oauth2/token',
             data={
@@ -125,7 +124,6 @@ def get_hotels(city_code, check_in, check_out):
         token = token_response.json().get('access_token')
         headers = {'Authorization': f'Bearer {token}'}
 
-        # ✅ Hotel List
         log(f"Fetching hotel list for {city_code}")
         list_res = requests.get(
             'https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city',
@@ -145,7 +143,6 @@ def get_hotels(city_code, check_in, check_out):
         hotel_ids = [h['hotelId'] for h in hotels_data[:10]]
         log(f"Found {len(hotel_ids)} hotels, fetching prices...")
 
-        # ✅ Hotel Offers
         offers_res = requests.get(
             'https://test.api.amadeus.com/v3/shopping/hotel-offers',
             headers=headers,
