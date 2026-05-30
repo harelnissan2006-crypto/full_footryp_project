@@ -1,13 +1,15 @@
 .card {
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s;
+    background: linear-gradient(180deg, #ffffff 0%, #e8f4ff 100%);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 20px 40px rgba(13, 59, 102, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(37, 99, 235, 0.12);
 }
 
 .card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 52px rgba(13, 59, 102, 0.14);
 }
 
 .match-header {

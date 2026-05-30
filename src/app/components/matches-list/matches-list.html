@@ -22,7 +22,7 @@
 
     <div *ngIf="!isLoading && matches.length > 0">
         <div class="team-section" *ngFor="let group of groupedMatches">
-            <h3 class="team-title">{{ group.team }}</h3>
+            <h3 class="team-title">{{ getTeamName(group.team) }}</h3>
             <div class="matches-grid">
                 <app-game-card
                     *ngFor="let match of group.matches"

@@ -103,6 +103,24 @@
     font-weight: 500;
 }
 
+.interest-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+    max-width: 200px;
+}
+
+.interest-chip {
+    background: #e8f5e9;
+    color: #165c2d;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
 .dots {
     display: flex;
     gap: 4px;

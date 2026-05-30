@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
+import { AuthService } from '../../services/auth.service';
 import { MatchTrip } from '../../models/match-trip.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,11 +20,13 @@ export class MatchesList implements OnInit {
     filterDate: string = '';
     filterCompetition: string = '';
     competitions: string[] = [];
+    teamsMap: Map<string, string> = new Map();
 
-    constructor(private matchesService: MatchesService) {}
+    constructor(private matchesService: MatchesService, private authService: AuthService) {}
 
     ngOnInit(): void {
         if (this.userId) {
+            this.loadTeams();
             this.loadCompetitions();
             this.loadMatches();
         }
@@ -53,6 +56,21 @@ export class MatchesList implements OnInit {
                 this.matches = [];
             }
         });
+    }
+
+    loadTeams(): void {
+        this.authService.getTeams().subscribe({
+            next: (teams: any[]) => {
+                teams.forEach(t => this.teamsMap.set(t.id.toString(), t.name));
+            },
+            error: (err) => {
+                console.error('Error loading teams:', err);
+            }
+        });
+    }
+
+    getTeamName(teamId: string): string {
+        return this.teamsMap.get(teamId.toString()) || teamId || 'Unknown Team';
     }
 
     clearFilters(): void {

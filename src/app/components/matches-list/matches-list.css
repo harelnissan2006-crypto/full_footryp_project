@@ -1,0 +1,135 @@
+.matches-container {
+    max-width: 1120px;
+    margin: 24px auto;
+    padding: 28px;
+    background: linear-gradient(180deg, #f3f8ff 0%, #ffffff 100%);
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(11, 56, 104, 0.12);
+}
+
+.matches-container h2 {
+    margin: 0 0 16px;
+    font-size: 2.2rem;
+    color: #0d3b66;
+    letter-spacing: -0.03em;
+    text-align: center;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 24px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid rgba(13, 59, 102, 0.08);
+    border-radius: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-group label {
+    color: #334155;
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #f8fbff;
+    color: #0f172a;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.filters button {
+    justify-self: start;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 16px;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.filters button:hover {
+    transform: translateY(-1px);
+    background: #1d4ed8;
+}
+
+.team-section {
+    margin-bottom: 28px;
+}
+
+.team-title {
+    margin: 0 0 14px;
+    padding: 14px 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #0d3b66;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 999px;
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.loader {
+    padding: 42px 0;
+    text-align: center;
+    color: #475569;
+    font-size: 1rem;
+}
+
+.no-matches {
+    margin-top: 32px;
+    padding: 28px;
+    text-align: center;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid rgba(13, 59, 102, 0.08);
+    box-shadow: 0 16px 40px rgba(11, 56, 104, 0.08);
+}
+
+.no-matches p {
+    margin: 0 0 14px;
+    color: #334155;
+    font-size: 1rem;
+}
+
+.no-matches button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 16px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.no-matches button:hover {
+    background: #1e40af;
+}

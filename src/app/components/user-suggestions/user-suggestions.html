@@ -29,6 +29,14 @@
                     <span class="label">⚽ Favorite Team</span>
                     <span class="value">{{ getTeamName(user.favoriteTeamId) }}</span>
                 </div>
+                <div class="detail-row interest-teams-row" *ngIf="user.otherInterestTeamsIds?.length">
+                    <span class="label">📣 Interest Teams</span>
+                    <div class="interest-chips">
+                        <span class="interest-chip" *ngFor="let teamId of user.otherInterestTeamsIds">
+                            {{ getTeamName(teamId) }}
+                        </span>
+                    </div>
+                </div>
                 <div class="detail-row">
                     <span class="label">💰 Budget</span>
                     <div class="dots">

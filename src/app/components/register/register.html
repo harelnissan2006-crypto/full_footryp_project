@@ -1,28 +1,34 @@
-<div class="register-container" dir="ltr">
-  <div class="register-card">
-    <div class="card-header">
+<div class="register-page">
+  <div class="register-panel">
+    <div class="hero-card">
+      <div class="hero-tag">⚽✈️ Football Travel</div>
       <h2>Join Footryp</h2>
-      <p>The first step to finding your perfect football package</p>
+      <p>Build your fan profile and discover tailored match trips with fellow travelers.</p>
+      <div class="hero-graphic">🏟️🛄🌍</div>
     </div>
 
-    <div class="card-body">
+    <div class="register-card">
+      <div class="card-header">
+        <div class="card-badge">Create Account</div>
+        <p>Get started with your football travel preferences.</p>
+      </div>
+
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        
-        <h3 class="section-title">Basic Details</h3>
-        
-        <div class="form-group full-width">
-          <label>Username</label>
-          <input type="text" formControlName="username" placeholder="Enter username"
-                 [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+        <div class="form-row split-row">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" formControlName="username" placeholder="Enter username"
+                   [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+          </div>
+
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" formControlName="email" placeholder="email@example.com"
+                   [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          </div>
         </div>
 
-        <div class="form-group full-width">
-          <label>Email Address</label>
-          <input type="email" formControlName="email" placeholder="email@example.com"
-                 [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-        </div>
-
-        <div class="form-row">
+        <div class="form-row split-row">
           <div class="form-group">
             <label>Password</label>
             <input type="password" formControlName="password" placeholder="********"
@@ -35,75 +41,77 @@
           </div>
         </div>
 
-        <h3 class="section-title">Travel Preferences & AI</h3>
-        
-        <div class="form-group full-width">
-          <label>Primary Favorite Team</label>
-          <div class="form-row" style="margin-bottom: 0;">
-            <div class="form-group flex-grow">
-              <select (change)="onLeagueChangeFavorite($event)" style="margin-bottom: 10px;">
-                <option value="">-- Select League --</option>
-                <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
-              </select>
-              
-              <select formControlName="favoriteTeamId" [disabled]="!selectedLeagueFavorite">
-                <option [ngValue]="null">Select Team...</option>
-                <option *ngFor="let team of filteredTeamsFavorite" [ngValue]="team.id">{{ team.name }}</option>
-              </select>
-            </div>
-            
-            <div class="form-group width-small">
-              <label>Age</label>
-              <input type="number" formControlName="age"
-                     [class.error]="registerForm.get('age')?.invalid && registerForm.get('age')?.touched">
-            </div>
-          </div>
+        <div class="section-header">
+          <h3>Travel Preferences & AI</h3>
+          <span>Select your favorite and interest teams</span>
         </div>
 
-        <div class="form-group full-width">
-          <label>Additional Interest Teams</label>
-          <div class="form-row" style="gap: 10px; margin-bottom: 10px;">
-            <select (change)="onLeagueChangeInterest($event)" class="flex-grow">
-              <option value="">Select League...</option>
+        <div class="form-group">
+          <label>Primary Favorite Team</label>
+          <div class="form-row stacked-row">
+            <select (change)="onLeagueChangeFavorite($event)">
+              <option value="">-- Select League --</option>
               <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
             </select>
-
-            <select (change)="addInterestTeam($event)" class="flex-grow" [disabled]="!selectedLeagueInterest">
-              <option value="">Add Team...</option>
-              <option *ngFor="let team of filteredTeamsInterest" [value]="team.id">{{ team.name }}</option>
+            <select formControlName="favoriteTeamId" [disabled]="!selectedLeagueFavorite">
+              <option [ngValue]="null">Select Team...</option>
+              <option *ngFor="let team of filteredTeamsFavorite" [ngValue]="team.id">{{ team.name }}</option>
             </select>
           </div>
-          
-          <div class="interest-chips-container">
-            <div *ngFor="let id of getInterestTeamIds()" class="interest-chip">
-              <span>{{ getTeamNameById(id) }}</span>
-              <button type="button" (click)="removeInterestTeam(id)" class="remove-chip-btn">x</button>
+        </div>
+
+        <div class="form-row split-row">
+          <div class="form-group flex-grow">
+            <label>Additional Interest Teams</label>
+            <div class="form-row select-group">
+              <select (change)="onLeagueChangeInterest($event)">
+                <option value="">Select League...</option>
+                <option *ngFor="let league of leagues" [value]="league">{{ league }}</option>
+              </select>
+              <select (change)="addInterestTeam($event)" [disabled]="!selectedLeagueInterest">
+                <option value="">Add Team...</option>
+                <option *ngFor="let team of filteredTeamsInterest" [value]="team.id">{{ team.name }}</option>
+              </select>
             </div>
-            <span *ngIf="getInterestTeamIds().length === 0" class="placeholder-text">No additional teams selected</span>
+            <div class="interest-chips-container">
+              <div *ngFor="let id of getInterestTeamIds()" class="interest-chip">
+                <span>{{ getTeamNameById(id) }}</span>
+                <button type="button" (click)="removeInterestTeam(id)" class="remove-chip-btn">✕</button>
+              </div>
+              <span *ngIf="getInterestTeamIds().length === 0" class="placeholder-text">No interest teams selected yet</span>
+            </div>
+          </div>
+
+          <div class="form-group age-card">
+            <label>Age</label>
+            <input type="number" formControlName="age"
+                   [class.error]="registerForm.get('age')?.invalid && registerForm.get('age')?.touched">
           </div>
         </div>
 
-        <div class="form-group full-width slider-group">
-          <label>
-            <span>Budget Level (1-5)</span>
-            <span class="badge">{{ registerForm.get('budgetLevel')?.value }}</span>
-          </label>
-          <input type="range" min="1" max="5" formControlName="budgetLevel">
-          <div class="slider-labels">
-            <span>Economy</span>
-            <span>Luxury</span>
+        <div class="form-row stacked-row slider-wrapper">
+          <div class="slider-box">
+            <div class="slider-label-row">
+              <span>Budget Level</span>
+              <span class="badge">{{ registerForm.get('budgetLevel')?.value }}</span>
+            </div>
+            <input type="range" min="1" max="5" formControlName="budgetLevel">
+            <div class="slider-labels">
+              <span>Economy</span>
+              <span>Luxury</span>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group full-width slider-group">
-          <label>
-            <span>Adventure Rating</span>
-            <span class="badge">{{ registerForm.get('riskTolerance')?.value }}</span>
-          </label>
-          <input type="range" min="1" max="5" formControlName="riskTolerance">
-          <div class="slider-labels">
-            <span>Safe</span>
-            <span>Adventurous</span>
+          <div class="slider-box">
+            <div class="slider-label-row">
+              <span>Adventure Rating</span>
+              <span class="badge">{{ registerForm.get('riskTolerance')?.value }}</span>
+            </div>
+            <input type="range" min="1" max="5" formControlName="riskTolerance">
+            <div class="slider-labels">
+              <span>Safe</span>
+              <span>Adventurous</span>
+            </div>
           </div>
         </div>
 

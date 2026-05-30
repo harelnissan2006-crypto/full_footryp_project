@@ -36,7 +36,6 @@ router.get('/chats/:username', async (req, res) =>{
             }
         }
 
-        // If no DM ChatRoom was found, derive DM ids from messages and current username.
         const dmMatchIds = await Message.find({ matchId: new RegExp(`^dm_.*${username}.*`) }).distinct('matchId');
         for (const rid of dmMatchIds) {
             if (!rid) continue;
@@ -52,7 +51,6 @@ router.get('/chats/:username', async (req, res) =>{
                 continue;
             }
 
-            // If only one sender exists, split the raw id using the current username boundaries.
             const raw = rid.slice(3);
             const selfIndex = raw.indexOf(username);
             if (selfIndex !== -1) {
@@ -70,7 +68,6 @@ router.get('/chats/:username', async (req, res) =>{
                 }
             }
 
-            // Last resort: try a raw split at the first underscore boundary after prefix
             const fields = raw.split('_');
             if (fields.length >= 2) {
                 const otherUser = fields.slice(0, -1).join('_') === username ? fields.slice(-1).join('_') : fields.slice(0, -1).join('_');

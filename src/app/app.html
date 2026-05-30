@@ -1,12 +1,15 @@
-<nav class="navbar navbar-dark bg-dark mb-4" *ngIf="showNavbar">
-  <div class="container">
-    <a class="navbar-brand" routerLink="/matches">Footryp</a>
+<nav class="navbar app-navbar mb-4" *ngIf="showNavbar">
+  <div class="container app-navbar-content">
+    <a class="navbar-brand" routerLink="/matches">
+      <span class="brand-icon">⚽✈️</span>
+      <span class="brand-text">Footryp</span>
+    </a>
     <div class="navbar-nav d-flex flex-row">
       <a class="nav-link me-3" routerLink="/matches">Matches</a>
       <a class="nav-link me-3" routerLink="/chats">Chats</a>
-      <a class="nav-link me-3" routerLink="/profile">My Profile</a>
-      <a class="nav-link me-3" routerLink="/suggestions">Travel Companions</a>
-      <a class="nav-link text-danger" (click)="logout()" style="cursor:pointer">Logout</a>
+      <a class="nav-link me-3" routerLink="/profile">Profile</a>
+      <a class="nav-link me-3" routerLink="/suggestions">Companions</a>
+      <a class="nav-link nav-logout" (click)="logout()">Logout</a>
     </div>
   </div>
 </nav>
